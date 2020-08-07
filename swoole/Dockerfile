@@ -8,7 +8,6 @@ ENV SWOOLE_HTTP_HOST "0.0.0.0"
  
 USER root
 
-CMD ["php", "artisan", "config:clear"]
-CMD ["php", "artisan", "migrate"]
-CMD ["php", "artisan","swoole:http","start"]
-
+ADD ./run.sh /tmp/
+RUN chmod +x /tmp/run.sh
+ENTRYPOINT ["/tmp/run.sh"]
