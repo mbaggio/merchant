@@ -18,10 +18,14 @@
 
 CREATE DATABASE IF NOT EXISTS `merchants` COLLATE 'utf8_general_ci' ;
 
-CREATE USER 'merchant_admin'@'%' IDENTIFIED BY PASSWORD 'password_123';
-
+DROP USER IF EXISTS 'merchant_admin'@'%';
+CREATE USER 'merchant_admin'@'%' IDENTIFIED WITH mysql_native_password BY 'password_123';
 GRANT ALL ON `merchants`.* TO 'merchant_admin'@'%' ;
-GRANT ALL ON `information_schema`.* TO 'merchant_admin'@'%' ;
+
+DROP USER IF EXISTS 'root'@'%';
+CREATE USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'password_admin';
+GRANT ALL ON `merchants`.* TO 'root'@'%' ;
+# GRANT ALL ON `information_schema`.* TO 'merchant_admin'@'%' ;
 
 FLUSH PRIVILEGES ;
 
