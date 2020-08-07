@@ -2,8 +2,6 @@
 # wait until MySQL is really available
 maxcounter=45
  
- echo "hola";
- 
 counter=1
 while ! mysql --protocol TCP -uroot -ppassword_admin -e "show databases;" > /dev/null 2>&1; do
     sleep 1
