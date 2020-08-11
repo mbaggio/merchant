@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSitemapCateogryTable extends Migration
+class CreateSitemapCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateSitemapCateogryTable extends Migration
      */
     public function up()
     {   
-        Schema::create('sitemap_cateogry', function (Blueprint $table) {
+        Schema::create('sitemap_categories', function (Blueprint $table) {
             $table->increments('id');
             
             $table->string('name', 50)
@@ -36,6 +36,6 @@ class CreateSitemapCateogryTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sitemap_cateogry');
+        Schema::dropIfExists('sitemap_categories');
     }
 }

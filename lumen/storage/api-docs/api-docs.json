@@ -19,6 +19,19 @@
                     }
                 }
             }
+        },
+        "/sitemap_categories": {
+            "get": {
+                "tags": [
+                    "Sitemap categories"
+                ],
+                "description": "Sitemap Categories",
+                "responses": {
+                    "200": {
+                        "description": "Sitemap cateogories list"
+                    }
+                }
+            }
         }
     }
 }

@@ -9,6 +9,12 @@
 
 use Illuminate\Support\Facades\Route;
 
+# Categories CREATE . READ . UPDATE . DELETE
+# READ
+$router->get('/sitemap_categories', function () use ($router) {
+    return response()->json(\App\Models\SitemapCategory::all());
+});
+
 /*
 Route::resource('users', 'UserController', ['only' => ['store']]);
 
