@@ -9,6 +9,66 @@
         "version": "1.0"
     },
     "paths": {
+        "/merchants": {
+            "get": {
+                "tags": [
+                    "Merchants"
+                ],
+                "description": "Merchants list",
+                "responses": {
+                    "200": {
+                        "description": "Merchants list"
+                    }
+                }
+            }
+        },
+        "/merchants/{name}/{url}/{description}/{sitemap_category_id}": {
+            "post": {
+                "tags": [
+                    "Merchants"
+                ],
+                "description": "New Merchant",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::create",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Merchant name",
+                        "required": true,
+                        "example": "Ebay"
+                    },
+                    {
+                        "name": "url",
+                        "in": "path",
+                        "description": "Merchant URL",
+                        "required": true,
+                        "example": "http://www.ebay.com"
+                    },
+                    {
+                        "name": "description",
+                        "in": "path",
+                        "description": "Merchant Description",
+                        "required": true,
+                        "example": "eBay Inc. is a global commerce leader that connects millions of buyers and sellers around the world. We exist to enable economic opportunity for individuals, entrepreneurs, businesses and organizations of all sizes. Our portfolio of brands includes eBay Marketplace and eBay Classifieds Group, operating in 190 markets around the world."
+                    },
+                    {
+                        "name": "sitemap_category_id",
+                        "in": "path",
+                        "description": "Merchant Sitemap Category ID",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "New Merchant addedd"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
         "/sitemap_categories": {
             "get": {
                 "tags": [

@@ -188,33 +188,13 @@ class SitemapCategoriesController extends Controller
         
         # Validations
         # 1 - $id (format and existant)
-        
-        
-        # 1 - $id (format and existant)
-        $id = (urldecode($id) == '{id}') ? null : trim($id);
-        if (is_null($id)) {
-            $error = response()->json(['error' => 'ID can not be empty', 'data' => $id], 412, []);        
-        } 
-        if (is_null($error) && !is_numeric($id)) {
-            // check format
-            $error = response()->json(['error' => 'Invalid ID value', 'data' => $id], 412, []);
-        } 
-        if (is_null($error)) {
-            // check existant category
-            $item = \DB::table('sitemap_categories')->where('id', $id)->first();
-            if (empty($item)) {
-                $error = response()->json(['error' => 'Invalid ID - it doesn\'t exist', 'data' => $id], 412, []);
-            }
-        }
+        $id = Controller::sanatizeIntegerInput('sitemap_categories', 'id', $id, $error, ['should_exist' => true]);
             
-        # 2 - $id (existant relationships)
-        if (is_null($error)) {
-            // check related categories
-            $item = \DB::table('sitemap_categories')->where('parent_id', $id)->first();
-            if (!empty($item)) {
-                $error = response()->json(['error' => 'There are related categories linked to it - can\'t delete', 'data' => $item], 412, []);
-            }
-        }
+        # 2 - $id (existant Categories relationships)
+        Controller::sanatizeIntegerInput('sitemap_categories', 'parent_id', $id, $error, ['should_not_exist' => true]);
+        
+        # 2 - $id (existant Merchants relationships)
+        Controller::sanatizeIntegerInput('merchants', 'sitemap_category_id', $id, $error, ['should_not_exist' => true]);
             
         if (is_null($error)) {
             
