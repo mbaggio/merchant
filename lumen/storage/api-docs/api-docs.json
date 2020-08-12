@@ -33,7 +33,7 @@
                 }
             }
         },
-        "/sitemap_categories/{name}": {
+        "/sitemap_categories/{name}/{parent_id}": {
             "post": {
                 "tags": [
                     "Sitemap categories"
@@ -45,12 +45,23 @@
                         "in": "path",
                         "description": "Category name",
                         "required": true,
-                        "example": "ebay.com"
+                        "example": "NY News papers"
+                    },
+                    {
+                        "name": "parent_id",
+                        "in": "path",
+                        "description": "Category parent id",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "example": 12
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "New Sitemap cateogory"
+                    "201": {
+                        "description": "New Sitemap cateogory addedd"
+                    },
+                    "412": {
+                        "description": "Already exists or an error"
                     }
                 }
             }

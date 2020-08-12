@@ -16,7 +16,7 @@ use Laravel\Scout\Searchable;
 
 /**
  * @OA\Post(
- *     path="/sitemap_categories/{name}",
+ *     path="/sitemap_categories/{name}/{parent_id}",
  *     description="New Sitemap Category",
  *     tags={"Sitemap categories"},
  *     @OA\Parameter(
@@ -24,9 +24,18 @@ use Laravel\Scout\Searchable;
  *        in="path",
  *        description="Category name",
  *        required=true,
- *        example="San Francisco News Papers"
+ *        example="NY News papers"
  *     ),
- *     @OA\Response(response="200", description="New Sitemap cateogory")
+ *     @OA\Parameter(
+ *        name="parent_id",
+ *        in="path",
+ *        description="Category parent id",
+ *        required=false,
+ *        allowEmptyValue=true,
+ *        example=12
+ *     ),
+ *     @OA\Response(response="201", description="New Sitemap cateogory addedd"),
+ *     @OA\Response(response="412", description="Already exists or an error")
  * )
  */
 

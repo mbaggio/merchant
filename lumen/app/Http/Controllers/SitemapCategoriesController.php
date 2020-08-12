@@ -7,49 +7,53 @@ use Illuminate\Http\Request;
 
 class SitemapCategoriesController extends Controller
 {
-    public function create(Request $request, $name) {
+    public function create(Request $request, $name, $parent_id = null) {
+        $error = null;
         
-        $valor = stripslashes($name);
+        # Validations
+        # 1 - $name (format and existant)
+        # 2 - $parent_id (format and existant)
         
-        $valor = str_ireplace("SELECT","",$valor);
-        $valor = str_ireplace("COPY","",$valor);
-        $valor = str_ireplace("DELETE","",$valor);
-        $valor = str_ireplace("DROP","",$valor);
-        $valor = str_ireplace("DUMP","",$valor);
-        $valor = str_ireplace(" OR ","",$valor);
-        $valor = str_ireplace("%","",$valor);
-        $valor = str_ireplace("LIKE","",$valor);
-        $valor = str_ireplace("--","",$valor);
-        $valor = str_ireplace("^","",$valor);
-        $valor = str_ireplace("[","",$valor);
-        $valor = str_ireplace("]","",$valor);
-        $valor = str_ireplace("\\","",$valor);
-        $valor = str_ireplace("!","",$valor);
-        $valor = str_ireplace("¡","",$valor);
-        $valor = str_ireplace("?","",$valor);
-        $valor = str_ireplace("=","",$valor);
-        $valor = str_ireplace("&","",$valor);
-        
-        $valor = trim($valor);
-        
+        # 1 - $name
+        $valor = trim(urldecode($name));
         if (!empty($valor)) {
-            
-            // search for it
+            // search for that name - similar category check
             $item = \DB::table('sitemap_categories')->where('name', $valor)->first();
             
-            if (empty($item)) {
-                $new_sc = new \App\Models\SitemapCategory();
-                $new_sc->name = $valor;
-                $new_sc->save();
-
-                return response()->json(['success' => 'Item addedd'], 201);    
-            } else {
-                return response()->json(['error' => 'Already exists', 'data' => json_encode($valor)], 412, []);        
+            if (!empty($item)) {
+                $error = response()->json(['error' => 'Already exists', 'data' => $valor], 412, []);        
             }
-            
-        } else {
-            return response()->json(['error' => 'Invalid name', 'data' => json_encode($valor)], 412, []);    
         }
         
+        # 2 - $parent_id (format and existant)
+        $parent_id = (urldecode($parent_id) == '{parent_id}') ? null : trim($parent_id);
+        if (is_null($error) && !is_null($parent_id)) {
+            if (!is_numeric($parent_id)) {
+                // check format
+                $error = response()->json(['error' => 'Invalid parent_id value', 'data' => $parent_id], 412, []);
+            } else {
+                // check existant category
+                $item = \DB::table('sitemap_categories')->where('id', $parent_id)->first();
+                if (empty($item)) {
+                    $error = response()->json(['error' => 'Invalid parent_id - it doesn\'t exist', 'data' => $parent_id], 412, []);
+                }
+            }
+        }
+        
+        if (is_null($error)) {            
+            
+            // Save this new category in our DB
+            $new_sc = \App\Models\SitemapCategory::create([
+                'name' => $valor,
+                'parent_id' => $parent_id
+            ]);
+
+            return response()->json(['success' => 'Item addedd', 'data' => $new_sc], 201);    
+
+        } else {
+            
+            return $error;
+            
+        }
     }
 }
