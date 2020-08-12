@@ -49,38 +49,16 @@ class SitemapCategoriesController extends Controller
         # 2 - $parent_id (format and existant)
         
         # 1 - $name
-        $valor = (urldecode($name) == '{name}') ? null : trim(urldecode($name));
-        if (is_null($valor)) {
-            $error = response()->json(['error' => 'Name can not be empty', 'data' => $valor], 412, []);        
-        } else {
-            // search for that name - similar category check
-            $item = \DB::table('sitemap_categories')->where('name', $valor)->first();
-            
-            if (!empty($item)) {
-                $error = response()->json(['error' => 'Already exists', 'data' => $valor], 412, []);        
-            }
-        }
+        $name = Controller::sanatizeStringInput('sitemap_categories', 'name', $name, $error);
         
         # 2 - $parent_id (format and existant)
-        $parent_id = (urldecode($parent_id) == '{parent_id}') ? null : trim($parent_id);
-        if (is_null($error) && !is_null($parent_id)) {
-            if (!is_numeric($parent_id)) {
-                // check format
-                $error = response()->json(['error' => 'Invalid parent_id value', 'data' => $parent_id], 412, []);
-            } else {
-                // check existant category
-                $item = \DB::table('sitemap_categories')->where('id', $parent_id)->first();
-                if (empty($item)) {
-                    $error = response()->json(['error' => 'Invalid parent_id - it doesn\'t exist', 'data' => $parent_id], 412, []);
-                }
-            }
-        }
+        $parent_id = Controller::sanatizeIntegerInput('sitemap_categories', 'id', $parent_id, $error, ['allow_null' => true, 'should_exist' => true, 'invalid_value' => 1]);
         
         if (is_null($error)) {            
-            
+                
             // Save this new category in our DB
             $new_sc = \App\Models\SitemapCategory::create([
-                'name' => $valor,
+                'name' => $name,
                 'parent_id' => $parent_id
             ]);
 
@@ -115,7 +93,7 @@ class SitemapCategoriesController extends Controller
      *        required=true,
      *        example="NY News Paper"
      *     ),
-     *     @OA\Response(response="200", description="New Sitemap cateogory updated"),
+     *     @OA\Response(response="200", description="Sitemap cateogory updated"),
      *     @OA\Response(response="412", description="Precondition Failed")
      * )
      */
@@ -127,25 +105,10 @@ class SitemapCategoriesController extends Controller
         # 2 - $new_name (format and existant)
         
         # 1 - $id (format and existant)
-        $id = (urldecode($id) == '{id}') ? null : trim($id);
-        if (!is_numeric($id)) {
-            // check format
-            $error = response()->json(['error' => 'Invalid id value', 'data' => $id], 412, []);
-        }
+        $id = Controller::sanatizeIntegerInput('sitemap_categories', 'id', $id, $error, ['should_exist' => true, 'invalid_value' => 1]);
         
         # 2 - $new_name
-        $new_name = (urldecode($new_name) == '{new_name}') ? null : trim(urldecode($new_name));
-        if (is_null($error) && is_null($new_name)) {
-            $error = response()->json(['error' => 'Name can not be empty', 'data' => $valor], 412, []);        
-        } 
-        if (is_null($error)) {
-            // search for that name - similar category check
-            $item = \DB::table('sitemap_categories')->where('name', $new_name)->first();
-            
-            if (!empty($item)) {
-                $error = response()->json(['error' => 'Category Already exists', 'data' => $new_name], 412, []);        
-            }
-        }
+        $new_name = Controller::sanatizeStringInput('sitemap_categories', 'name', $new_name, $error);
         
         if (is_null($error)) {            
             
@@ -188,14 +151,14 @@ class SitemapCategoriesController extends Controller
         
         # Validations
         # 1 - $id (format and existant)
-        $id = Controller::sanatizeIntegerInput('sitemap_categories', 'id', $id, $error, ['should_exist' => true]);
+        $id = Controller::sanatizeIntegerInput('sitemap_categories', 'id', $id, $error, ['should_exist' => true, 'invalid_value' => 1]);
             
         # 2 - $id (existant Categories relationships)
         Controller::sanatizeIntegerInput('sitemap_categories', 'parent_id', $id, $error, ['should_not_exist' => true]);
         
         # 2 - $id (existant Merchants relationships)
         Controller::sanatizeIntegerInput('merchants', 'sitemap_category_id', $id, $error, ['should_not_exist' => true]);
-            
+        
         if (is_null($error)) {
             
             // delete

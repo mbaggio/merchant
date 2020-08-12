@@ -69,6 +69,86 @@
                 }
             }
         },
+        "/merchants/{id}/{new_name}/{new_url}/{new_description}/{new_sitemap_category_id}": {
+            "patch": {
+                "tags": [
+                    "Merchants"
+                ],
+                "description": "Update merchant",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Merchant ID",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "new_name",
+                        "in": "path",
+                        "description": "Merchant new name",
+                        "required": false,
+                        "example": "NY News Paper"
+                    },
+                    {
+                        "name": "new_url",
+                        "in": "path",
+                        "description": "Merchant new url",
+                        "required": false,
+                        "example": "http://www.example.com"
+                    },
+                    {
+                        "name": "new_description",
+                        "in": "path",
+                        "description": "Merchant new description",
+                        "required": false,
+                        "example": ""
+                    },
+                    {
+                        "name": "new_sitemap_category_id",
+                        "in": "path",
+                        "description": "Merchant new sitemap_category_id",
+                        "required": false,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Merchant updated"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
+        "/merchants/{id}": {
+            "delete": {
+                "tags": [
+                    "Merchants"
+                ],
+                "description": "Delete Merchant",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Merchant id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Merchant deleted"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
         "/sitemap_categories": {
             "get": {
                 "tags": [
@@ -141,7 +221,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "New Sitemap cateogory updated"
+                        "description": "Sitemap cateogory updated"
                     },
                     "412": {
                         "description": "Precondition Failed"

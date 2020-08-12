@@ -27,6 +27,13 @@ class CreateSitemapCategoriesTable extends Migration
             
             $table->timestamps();
         });
+        
+        // category #id 1: for internal purposes 
+        DB::table('sitemap_categories')->insert(
+            array(
+                'name' => 'Hidden category - internal - for deleted Merchants'
+            )
+        );
     }
 
     /**
