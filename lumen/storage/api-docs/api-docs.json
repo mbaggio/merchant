@@ -9,17 +9,6 @@
         "version": "1.0"
     },
     "paths": {
-        "/": {
-            "get": {
-                "description": "Home page",
-                "operationId": "App\\Http\\Controllers\\Controller::getThings",
-                "responses": {
-                    "default": {
-                        "description": "Welcome page"
-                    }
-                }
-            }
-        },
         "/sitemap_categories": {
             "get": {
                 "tags": [
@@ -39,6 +28,7 @@
                     "Sitemap categories"
                 ],
                 "description": "New Sitemap Category",
+                "operationId": "App\\Http\\Controllers\\SitemapCategoriesController::create",
                 "parameters": [
                     {
                         "name": "name",
@@ -61,7 +51,66 @@
                         "description": "New Sitemap cateogory addedd"
                     },
                     "412": {
-                        "description": "Already exists or an error"
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
+        "/sitemap_categories/{id}/{new_name}": {
+            "patch": {
+                "tags": [
+                    "Sitemap categories"
+                ],
+                "description": "Update Sitemap Category name",
+                "operationId": "App\\Http\\Controllers\\SitemapCategoriesController::update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Category ID",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "new_name",
+                        "in": "path",
+                        "description": "Category new name",
+                        "required": true,
+                        "example": "NY News Paper"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New Sitemap cateogory updated"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
+        "/sitemap_categories/{id}": {
+            "delete": {
+                "tags": [
+                    "Sitemap categories"
+                ],
+                "description": "Delete Sitemap Category",
+                "operationId": "App\\Http\\Controllers\\SitemapCategoriesController::delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Category id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sitemap cateogory deleted"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
                     }
                 }
             }

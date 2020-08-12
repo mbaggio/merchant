@@ -7,6 +7,8 @@
     "require": {
         "php": "^7.2.5",
         "darkaonline/swagger-lume": "^7.0",
+        "elasticsearch/elasticsearch": "^7.8",
+        "guzzlehttp/ringphp": "^1.1",
         "laravel/lumen-framework": "^7.0",
         "laravel/scout": "^8.2",
         "swooletw/laravel-swoole": "^2.6"
