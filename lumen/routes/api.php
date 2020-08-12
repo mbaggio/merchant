@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 $router->get('/sitemap_categories', function () use ($router) {
     return response()->json(\App\Models\SitemapCategory::all());
 });
+# CREATE
+$router->post('/sitemap_categories/{name}', ['uses' => 'SitemapCategoriesController@create']);
 
 /*
 Route::resource('users', 'UserController', ['only' => ['store']]);

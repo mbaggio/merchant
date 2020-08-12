@@ -29,6 +29,7 @@ $app->withEloquent();
 
 $app->configure('swagger-lume');
 
+
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
@@ -98,6 +99,7 @@ $app->configure('app');
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(\SwaggerLume\ServiceProvider::class);
+
 
 /*
 |--------------------------------------------------------------------------

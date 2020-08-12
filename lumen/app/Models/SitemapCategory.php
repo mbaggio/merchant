@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 /**
  * @OA\Get(
@@ -13,8 +14,36 @@ use Illuminate\Database\Eloquent\Model;
  * )
  */
 
+/**
+ * @OA\Post(
+ *     path="/sitemap_categories/{name}",
+ *     description="New Sitemap Category",
+ *     tags={"Sitemap categories"},
+ *     @OA\Parameter(
+ *        name="name",
+ *        in="path",
+ *        description="Category name",
+ *        required=true,
+ *        example="San Francisco News Papers"
+ *     ),
+ *     @OA\Response(response="200", description="New Sitemap cateogory")
+ * )
+ */
+
 class SitemapCategory extends Model 
 {
+    use Searchable;
+    
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs()
+    {
+        return 'sitemap_category_index';
+    }
+    
     /**
      * The attributes that are autoincremental
      *

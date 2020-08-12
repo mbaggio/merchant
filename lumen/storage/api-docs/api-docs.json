@@ -25,10 +25,32 @@
                 "tags": [
                     "Sitemap categories"
                 ],
-                "description": "Sitemap Categories",
+                "description": "Sitemap Categories list",
                 "responses": {
                     "200": {
                         "description": "Sitemap cateogories list"
+                    }
+                }
+            }
+        },
+        "/sitemap_categories/{name}": {
+            "post": {
+                "tags": [
+                    "Sitemap categories"
+                ],
+                "description": "New Sitemap Category",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Category name",
+                        "required": true,
+                        "example": "ebay.com"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New Sitemap cateogory"
                     }
                 }
             }
