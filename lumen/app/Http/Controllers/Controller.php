@@ -43,7 +43,6 @@ class Controller extends BaseController
         $value = (empty($value) && isset($options['allow_null'])) ? null : $value;
         $value = (substr($value, 0, 1) == '{' && substr($value, -1, 1) == '}') ? null : $value;
         
-        
         if (is_null($error)) {
             
             if (!is_null($value) || (is_null($value) && !isset($options['allow_null']))) {
@@ -56,9 +55,16 @@ class Controller extends BaseController
                 if (is_null($error) && ($not_numeric || $numeric_but_invalid)) {
                     // check format
                     $error = response()->json(['error' => 'Invalid '.$table.'.'.$key_name.' value (or not accepted)', 'data' => $value], 412, []);
-                } 
+                } else {
+                    // cast as a integer
+                    $value = intval($value);
+                }
+                
+                if (is_null($error) && $value < 0) {
+                    $error = response()->json(['error' => 'Invalid '.$key_name.' value - should be positive', 'data' => [$value]], 412, []);
+                }
 
-                if (is_null($error)) {
+                if (is_null($error) && !isset($options['avoid_table_check'])) {
                     // check existant category
                     $item = \DB::table($table)->where($key_name, $value)->first();
                     if (empty($item) && isset($options['should_exist'])) {

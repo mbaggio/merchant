@@ -16,6 +16,67 @@ class SitemapCategoriesController extends Controller
      * )
      */
     
+    /**
+     * @OA\Get(
+     *     path="/sitemap_categories/{sitemap_category_id}/merchants/{page_number}",
+     *     description="Sitemap cateogory - merchants list",
+     *     tags={"Sitemap categories"},
+     *     @OA\Parameter(
+     *        name="sitemap_category_id",
+     *        in="path",
+     *        description="Sitemap category id",
+     *        required=true,
+     *        example=12
+     *     ),
+     *     @OA\Parameter(
+     *        name="page_number",
+     *        in="path",
+     *        description="Page number",
+     *        required=false,
+     *        example=1
+     *     ),
+     *     @OA\Response(response="200", description="Sitemap cateogory - merchants list")
+     * )
+     */
+    public function getMerchants(Request $request, $sitemap_category_id, $page_number = null) {
+        $error = null;
+        
+        # Validations
+        # 1 - $id (format and existant)
+        $sitemap_category_id = Controller::sanatizeIntegerInput('sitemap_categories', 'id', $sitemap_category_id, $error, ['should_exist' => true, 'invalid_value' => 1]);
+        
+        # 2 - $page_number (format)
+        $page_number = Controller::sanatizeIntegerInput(null, 'page_number', $page_number, $error, ['allow_null' => true, 'avoid_table_check' => true, 'invalid_value' => 0]);
+        
+        if (is_null($error)) {
+            
+            $elements_per_page = 100;
+            if (is_null($page_number)) {
+                $page_number = 1;
+            }
+            
+            $total_elemts_qty = \DB::table('merchants')->where('sitemap_category_id', $sitemap_category_id)->count();
+            
+            $result = [
+                'collection' => \DB::table('merchants')->where('sitemap_category_id', $sitemap_category_id)->skip($elements_per_page * ($page_number-1))->take($elements_per_page)->get(),
+                'pagination' => [
+                    'previous_page_number' => ($page_number > 1) ? $page_number-1 : null,
+                    'current_page_number' => $page_number,
+                    'next_page_number' => ($total_elemts_qty > ($page_number * $elements_per_page)) ? $page_number+1 : null,
+                    'total_elemts' => $total_elemts_qty,
+                    'total_elemts_per_page' => $elements_per_page
+                ]
+            ];
+            
+            return response()->json($result);
+            
+        } else {
+            
+            return $error;
+            
+        }
+
+    }
     
     /**
      * @OA\Post(
@@ -174,4 +235,5 @@ class SitemapCategoriesController extends Controller
         }
         
     }
+    
 }

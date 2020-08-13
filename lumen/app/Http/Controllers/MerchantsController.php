@@ -8,14 +8,76 @@ class MerchantsController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/merchants",
+     *     path="/merchants/{name}/{page_number}",
      *     description="Merchants list",
      *     tags={"Merchants"},
+     *     @OA\Parameter(
+     *        name="name",
+     *        in="path",
+     *        description="Merchant name",
+     *        required=false,
+     *        example="Ebay",
+     *        allowEmptyValue=true,
+     *     ),
+     *     @OA\Parameter(
+     *        name="page_number",
+     *        in="path",
+     *        description="Page number",
+     *        required=false,
+     *        example=1,
+     *        allowEmptyValue=true,
+     *     ),
      *     @OA\Response(response="200", description="Merchants list")
      * )
      */
-    
-     // *        allowEmptyValue=true,
+    public function getMerchants(Request $request) {
+        $error = null;
+        
+        list($object, $path, $params) = $request->route();
+        $name = (empty($params) || !isset($params['name']) || urldecode($params['name']) == '{name}') ? '' : $params['name'];
+        $page_number = (empty($params) || !isset($params['page_number']) || urldecode($params['page_number']) == '{page_number}') ? '' : $params['page_number'];
+
+        # Validations
+        # 1 - $name (format)
+        $name = Controller::sanatizeStringInput(null, 'name', $name, $error, ['allow_null' => true, 'avoid_table_check' => true]);
+        
+        # 2 - $page_number (format)
+        $page_number = Controller::sanatizeIntegerInput(null, 'page_number', $page_number, $error, ['allow_null' => true, 'avoid_table_check' => true, 'invalid_value' => 0]);
+        
+        if (is_null($error)) {
+            
+            $elements_per_page = 100;
+            if (is_null($page_number)) {
+                $page_number = 1;
+            }
+            
+            $query = \DB::table('merchants')->where('deleted', '!=', 1);
+            if (!is_null($name)) {
+                $query->where('name', 'like', $name.'%');
+            }
+            
+            $total_elemts_qty = $query->count();
+            
+            $result = [
+                'collection' => $query->skip($elements_per_page * ($page_number-1))->take($elements_per_page)->get(),
+                'pagination' => [
+                    'previous_page_number' => ($page_number > 1) ? $page_number-1 : null,
+                    'current_page_number' => $page_number,
+                    'next_page_number' => ($total_elemts_qty > ($page_number * $elements_per_page)) ? $page_number+1 : null,
+                    'total_elemts' => $total_elemts_qty,
+                    'total_elemts_per_page' => $elements_per_page
+                ]
+            ];
+            
+            return response()->json($result);
+            
+        } else {
+            
+            return $error;
+            
+        }
+
+    }
     
     /**
      * @OA\Post(

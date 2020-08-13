@@ -9,12 +9,31 @@
         "version": "1.0"
     },
     "paths": {
-        "/merchants": {
+        "/merchants/{name}/{page_number}": {
             "get": {
                 "tags": [
                     "Merchants"
                 ],
                 "description": "Merchants list",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::getMerchants",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Merchant name",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "example": "Ebay"
+                    },
+                    {
+                        "name": "page_number",
+                        "in": "path",
+                        "description": "Page number",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "example": 1
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Merchants list"
@@ -158,6 +177,36 @@
                 "responses": {
                     "200": {
                         "description": "Sitemap cateogories list"
+                    }
+                }
+            }
+        },
+        "/sitemap_categories/{sitemap_category_id}/merchants/{page_number}": {
+            "get": {
+                "tags": [
+                    "Sitemap categories"
+                ],
+                "description": "Sitemap cateogory - merchants list",
+                "operationId": "App\\Http\\Controllers\\SitemapCategoriesController::getMerchants",
+                "parameters": [
+                    {
+                        "name": "sitemap_category_id",
+                        "in": "path",
+                        "description": "Sitemap category id",
+                        "required": true,
+                        "example": 12
+                    },
+                    {
+                        "name": "page_number",
+                        "in": "path",
+                        "description": "Page number",
+                        "required": false,
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sitemap cateogory - merchants list"
                     }
                 }
             }
