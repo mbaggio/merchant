@@ -35,7 +35,7 @@ class CreateAdCampaigns extends Migration
         });
         
         // relationship between ad_campaigns and Merchants
-        Schema::create('ad_campaigns_merchants', function (Blueprint $table) {
+        Schema::create('ad_campaign_merchants', function (Blueprint $table) {
             
             $table->unsignedInteger('ad_campaign_id')
                 ->nullable(false);
@@ -53,7 +53,7 @@ class CreateAdCampaigns extends Migration
             
             $table->timestamps();
             
-            $table->unique('ad_campaign_id', 'merchant_id');
+            $table->unique(['ad_campaign_id', 'merchant_id']);
             
             $table->index('merchant_id');
         });

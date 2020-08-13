@@ -303,4 +303,194 @@ class AdcampaignsController extends Controller
         }
         
     }
+    
+    /**********************************************************
+    /**********************************************************
+    Ad Campaigns Merchants CRUD Starts here
+    /**********************************************************
+    /**********************************************************/
+    /**
+     * @OA\Get(
+     *     path="/adcampaigns/{adcampaign_id}/merchants/{page_number}",
+     *     description="AdCampaigns merchants list",
+     *     tags={"AdCampaigns-Merchants"},
+     *     @OA\Parameter(
+     *        name="adcampaign_id",
+     *        in="path",
+     *        description="AdCampaign ID",
+     *        required=true,
+     *        example="1"
+     *     ),
+     *     @OA\Parameter(
+     *        name="page_number",
+     *        in="path",
+     *        description="Page number",
+     *        required=false,
+     *        example=1,
+     *        allowEmptyValue=true,
+     *     ),
+     *     @OA\Response(response="200", description="AdCampaigns merchants list")
+     * )
+     */
+    public function getAdcampaignMerchants(Request $request, $adcampaign_id, $page_number) {
+        $error = null;
+        
+        # 1 - $adcampaign_id (format and existant)
+        $adcampaign_id = Controller::sanatizeIntegerInput('ad_campaigns', 'id', $adcampaign_id, $error, ['should_exist' => true]);
+        
+        if (is_null($error)) {
+            
+            // exists 
+            $current_object_data = \DB::table('ad_campaigns')->where('id', $adcampaign_id)->first();
+            
+            if ($current_object_data->deleted == 1) {
+                $error = response()->json(['error' => 'Invalid adcampaign (deleted)', 'data' => ['table' => 'ad_campaigns', 'object' => $current_object_data]], 412, []);        
+            } 
+            
+        }
+        
+        if (is_null($error)) {
+            
+            $query = \DB::table('merchants')
+                ->join('ad_campaign_merchants', 'merchants.id', '=', 'ad_campaign_merchants.merchant_id')
+                ->join('ad_campaigns', 'ad_campaigns.id', '=', 'ad_campaign_merchants.ad_campaign_id')
+                ->where('merchants.deleted', '!=', 1)
+                ->where('ad_campaigns.deleted', '!=', 1)
+                ->where('ad_campaigns.id', '=', $adcampaign_id)
+                ->select('merchants.*');
+            
+            return Controller::paginateQueryResults([
+                'query' => $query,
+                'page_number' => $page_number
+            ]);
+        
+        } else {
+            
+            return $error;
+            
+        }
+        
+    }
+    
+    
+    /**
+     * @OA\Post(
+     *     path="/adcampaigns/{adcampaign_id}/merchants/{merchant_id}",
+     *     description="New merchant in AdCampaign",
+     *     tags={"AdCampaigns-Merchants"},
+     *     @OA\Parameter(
+     *        name="adcampaign_id",
+     *        in="path",
+     *        description="AdCampaign id",
+     *        required=true,
+     *        example="1"
+     *     ),
+     *     @OA\Parameter(
+     *        name="merchant_id",
+     *        in="path",
+     *        description="Merchant id",
+     *        required=true,
+     *        example="1"
+     *     ),
+     *     @OA\Response(response="201", description="Merchant addedd"),
+     *     @OA\Response(response="412", description="Precondition Failed")
+     * )
+     */
+    public function createAdcampaignMerchants(Request $request, $adcampaign_id, $merchant_id) {
+        $error = null;
+        
+        # 1 - $adcampaign_id (format and existant)
+        $adcampaign_id = Controller::sanatizeIntegerInput('ad_campaigns', 'id', $adcampaign_id, $error, ['should_exist' => true, 'check_logical_delete' => true]);
+        
+        # 1 - $merchant_id (format and existant)
+        $merchant_id = Controller::sanatizeIntegerInput('merchants', 'id', $merchant_id, $error, ['should_exist' => true, 'check_logical_delete' => true]);
+        
+        // check for unique
+        $item = \DB::table('ad_campaign_merchants')
+            ->where('ad_campaign_id', $adcampaign_id)
+            ->where('merchant_id', $merchant_id)
+            ->first();
+        if (!empty($item)) {
+            $error = response()->json(['error' => 'Relationship already exists', 'data' => [$item]], 412, []);        
+        }
+        
+        
+        if (is_null($error)) {
+            
+            // Save this new ad_campaign in our DB
+            $new = \App\Models\AdCampaignMerchant::create([
+                'ad_campaign_id' => $adcampaign_id,
+                'merchant_id' => $merchant_id
+            ]);
+            
+            return response()->json(['success' => 'Item addedd', 'data' => $new], 201);
+
+        } else {
+            
+            return $error;
+            
+        }
+    }
+    
+    /**
+     * @OA\Delete(
+     *     path="/adcampaigns/{adcampaign_id}/merchants/{merchant_id}",
+     *     description="Remove Merchant from Adcampaign",
+     *     tags={"AdCampaigns-Merchants"},
+     *     @OA\Parameter(
+     *        name="adcampaign_id",
+     *        in="path",
+     *        description="AdCampaign id",
+     *        required=true,
+     *        example="1"
+     *     ),
+     *     @OA\Parameter(
+     *        name="merchant_id",
+     *        in="path",
+     *        description="Merchant id",
+     *        required=true,
+     *        example="1"
+     *     ),
+     *     @OA\Response(response="200", description="Adcampaign deleted"),
+     *     @OA\Response(response="412", description="Precondition Failed")
+     * )
+     */
+    public function deleteAdcampaignMerchants(Request $request, $adcampaign_id, $merchant_id) {
+        $error = null;
+        
+        # 1 - $adcampaign_id (format and existant)
+        $adcampaign_id = Controller::sanatizeIntegerInput('ad_campaigns', 'id', $adcampaign_id, $error, ['should_exist' => true]);
+        
+        # 2 - $merchant_id (format and existant)
+        $merchant_id = Controller::sanatizeIntegerInput('merchants', 'id', $merchant_id, $error, ['should_exist' => true]);
+        
+        # 3 - previous relationship
+        $tmp_object = \DB::table('ad_campaign_merchants')
+                ->where('ad_campaign_id', $adcampaign_id)
+                ->where('merchant_id', $merchant_id)
+                ->first();
+        if (empty($tmp_object)) {
+            $error = response()->json(['error' => 'Relationship does not exists', 'data' => ['ad_campaign_id' => $adcampaign_id, 'merchant_id' => $merchant_id ]], 412, []);        
+        }
+        
+        if (is_null($error)) {
+
+            // delete
+            \DB::table('ad_campaign_merchants')
+                ->where('ad_campaign_id', $adcampaign_id)
+                ->where('merchant_id', $merchant_id)
+                ->delete();
+            
+            return response()->json(['success' => 'Item deleted', 'data' => ['ad_campaign_id' => $adcampaign_id, 'merchant_id' => $merchant_id ]], 200);
+        
+        } else {
+            
+            return $error;
+            
+        }
+        
+        
+    }
+    
+    
 }

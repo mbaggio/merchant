@@ -168,6 +168,101 @@
                 }
             }
         },
+        "/adcampaigns/{adcampaign_id}/merchants/{page_number}": {
+            "get": {
+                "tags": [
+                    "AdCampaigns-Merchants"
+                ],
+                "description": "AdCampaigns merchants list",
+                "operationId": "App\\Http\\Controllers\\AdcampaignsController::getAdcampaignMerchants",
+                "parameters": [
+                    {
+                        "name": "adcampaign_id",
+                        "in": "path",
+                        "description": "AdCampaign ID",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "page_number",
+                        "in": "path",
+                        "description": "Page number",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AdCampaigns merchants list"
+                    }
+                }
+            }
+        },
+        "/adcampaigns/{adcampaign_id}/merchants/{merchant_id}": {
+            "post": {
+                "tags": [
+                    "AdCampaigns-Merchants"
+                ],
+                "description": "New merchant in AdCampaign",
+                "operationId": "App\\Http\\Controllers\\AdcampaignsController::createAdcampaignMerchants",
+                "parameters": [
+                    {
+                        "name": "adcampaign_id",
+                        "in": "path",
+                        "description": "AdCampaign id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "merchant_id",
+                        "in": "path",
+                        "description": "Merchant id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Merchant addedd"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "AdCampaigns-Merchants"
+                ],
+                "description": "Remove Merchant from Adcampaign",
+                "operationId": "App\\Http\\Controllers\\AdcampaignsController::deleteAdcampaignMerchants",
+                "parameters": [
+                    {
+                        "name": "adcampaign_id",
+                        "in": "path",
+                        "description": "AdCampaign id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "merchant_id",
+                        "in": "path",
+                        "description": "Merchant id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Adcampaign deleted"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
         "/merchants/{name}/{page_number}": {
             "get": {
                 "tags": [

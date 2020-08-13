@@ -71,6 +71,10 @@ class Controller extends BaseController
                         $error = response()->json(['error' => 'Invalid '.$table.'.'.$key_name.' - it doesn\'t exist!', 'data' => $value], 412, []);
                     } elseif (!empty($item) && isset($options['should_not_exist'])) {
                         $error = response()->json(['error' => 'Invalid '.$table.'.'.$key_name.' - it exist but should not!', 'data' => ['table' => $table, 'object' => $item]], 412, []);
+                    } elseif (!empty($item) && isset($options['check_logical_delete'])) {
+                        if ($item->deleted) {
+                            $error = response()->json(['error' => 'Invalid - object exist but is deleted!', 'data' => ['table' => $table, 'object' => $item]], 412, []);
+                        }
                     }
                 }   
             }  
@@ -166,19 +170,12 @@ class Controller extends BaseController
         # Validations
         # 1 - $name (format)
         $name = Controller::sanatizeStringInput(null, 'name', $name, $error, ['allow_null' => true, 'avoid_table_check' => true]);
-        
-        # 2 - $page_number (format)
-        $page_number = Controller::sanatizeIntegerInput(null, 'page_number', $page_number, $error, ['allow_null' => true, 'avoid_table_check' => true, 'invalid_value' => 0]);
-        
+
         if (is_null($error)) {
             
             $showing_per_page = (isset($parameters['showing_per_page'])) ? $parameters['showing_per_page'] : 100;
-            if (is_null($page_number)) {
-                $page_number = 1;
-            }
             
             $query = \DB::table($parameters['table']);
-            
             if (isset($parameters['filter_deleted_items']) && $parameters['filter_deleted_items']==true) {
                 $query->where('deleted', '!=', 1);
             }
@@ -186,10 +183,43 @@ class Controller extends BaseController
                 $query->where('name', 'like', $name.'%');
             }
             
-            $total_elemts_qty = $query->count();
+            return Controller::paginateQueryResults([
+                'showing_per_page' => $showing_per_page,
+                'query' => $query,
+                'page_number' => $page_number
+            ]);
+
+        } else {
+            
+            return $error;
+            
+        }
+    }
+    
+    public static function paginateQueryResults($parameters) {
+        $error = null;
+        
+        # Validations
+        #1 show per page
+        $showing_per_page = (isset($parameters['showing_per_page'])) ? $parameters['showing_per_page'] : 100;
+        
+        # 2 - $page_number (format)
+        $page_number = Controller::sanatizeIntegerInput(null, 'page_number', $parameters['page_number'], $error, ['allow_null' => true, 'avoid_table_check' => true, 'invalid_value' => 0]);
+        if (is_null($page_number)) {
+                $page_number = 1;
+        }
+        
+        # 3 - Query
+        if (!isset($parameters['query'])) {
+            $error = response()->json(['error' => 'Invalid query value', 'data' => $parameters], 412, []);
+        }
+        
+        if (is_null($error)) {
+            
+            $total_elemts_qty = $parameters['query']->count();
             
             $result = [
-                'collection' => $query->skip($showing_per_page * ($page_number-1))->take($showing_per_page)->get(),
+                'collection' => $parameters['query']->skip($showing_per_page * ($page_number-1))->take($showing_per_page)->get(),
                 'pagination' => [
                     'previous_page_number' => ($page_number > 1) ? $page_number-1 : null,
                     'current_page_number' => $page_number,
