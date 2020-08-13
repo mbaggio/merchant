@@ -27,6 +27,7 @@ class CreateAdCampaigns extends Migration
             $table->dateTimeTz('date_to', 0)->nullable(false);
             
             $table->boolean('deleted')->default(0);
+            $table->dateTimeTz('deleted_at', 0)->nullable(true);
             
             $table->timestamps();
             

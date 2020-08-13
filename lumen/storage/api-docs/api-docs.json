@@ -20,10 +20,10 @@
                     {
                         "name": "name",
                         "in": "path",
-                        "description": "Merchant name",
+                        "description": "AdCampaign name",
                         "required": false,
                         "allowEmptyValue": true,
-                        "example": "Ebay"
+                        "example": "Xmas"
                     },
                     {
                         "name": "page_number",
@@ -81,6 +81,86 @@
                 "responses": {
                     "201": {
                         "description": "New AdCampaign addedd"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
+        "/adcampaigns/{id}/{new_name}/{new_cash_back_rate}/{new_date_from}/{new_date_to}": {
+            "patch": {
+                "tags": [
+                    "AdCampaigns"
+                ],
+                "description": "Update AdCampaign",
+                "operationId": "App\\Http\\Controllers\\AdcampaignsController::update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "AdCampaign ID",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "new_name",
+                        "in": "path",
+                        "description": "AdCampaign new name",
+                        "required": false,
+                        "example": "Xmas in December"
+                    },
+                    {
+                        "name": "new_cash_back_rate",
+                        "in": "path",
+                        "description": "Adcampaign new cash_back_rate",
+                        "required": false,
+                        "example": "10.2"
+                    },
+                    {
+                        "name": "new_date_from",
+                        "in": "path",
+                        "description": "Adcampaign new date_from",
+                        "required": false,
+                        "example": "2020-02-02"
+                    },
+                    {
+                        "name": "new_date_to",
+                        "in": "path",
+                        "description": "Adcampaign new date_to",
+                        "required": false,
+                        "example": "2020-02-20"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Adcampaign updated"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
+        "/adcampaigns/{id}": {
+            "delete": {
+                "tags": [
+                    "AdCampaigns"
+                ],
+                "description": "Delete Adcampaign",
+                "operationId": "App\\Http\\Controllers\\AdcampaignsController::delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Adcampaign id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Adcampaign deleted"
                     },
                     "412": {
                         "description": "Precondition Failed"
