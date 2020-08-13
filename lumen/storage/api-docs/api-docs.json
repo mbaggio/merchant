@@ -9,6 +9,85 @@
         "version": "1.0"
     },
     "paths": {
+        "/adcampaigns/{name}/{page_number}": {
+            "get": {
+                "tags": [
+                    "AdCampaigns"
+                ],
+                "description": "AdCampaigns list",
+                "operationId": "App\\Http\\Controllers\\AdcampaignsController::getAdcampaigns",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Merchant name",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "example": "Ebay"
+                    },
+                    {
+                        "name": "page_number",
+                        "in": "path",
+                        "description": "Page number",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AdCampaigns list"
+                    }
+                }
+            }
+        },
+        "/adcampaigns/{name}/{cash_back_rate}/{date_from}/{date_to}": {
+            "post": {
+                "tags": [
+                    "AdCampaigns"
+                ],
+                "description": "New AdCampaign",
+                "operationId": "App\\Http\\Controllers\\AdcampaignsController::create",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "AdCampaign name",
+                        "required": true,
+                        "example": "Xmas in July"
+                    },
+                    {
+                        "name": "cash_back_rate",
+                        "in": "path",
+                        "description": "AdCampaign cash_back_rate (in %)",
+                        "required": true,
+                        "example": "5.5"
+                    },
+                    {
+                        "name": "date_from",
+                        "in": "path",
+                        "description": "AdCampaign Start date",
+                        "required": true,
+                        "example": "2020-07-01 15:00:00"
+                    },
+                    {
+                        "name": "date_to",
+                        "in": "path",
+                        "description": "AdCampaign End date",
+                        "required": true,
+                        "example": "2020-07-03 15:00:00"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "New AdCampaign addedd"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
         "/merchants/{name}/{page_number}": {
             "get": {
                 "tags": [

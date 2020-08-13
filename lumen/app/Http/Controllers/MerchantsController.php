@@ -31,52 +31,11 @@ class MerchantsController extends Controller
      * )
      */
     public function getMerchants(Request $request) {
-        $error = null;
-        
-        list($object, $path, $params) = $request->route();
-        $name = (empty($params) || !isset($params['name']) || urldecode($params['name']) == '{name}') ? '' : $params['name'];
-        $page_number = (empty($params) || !isset($params['page_number']) || urldecode($params['page_number']) == '{page_number}') ? '' : $params['page_number'];
-
-        # Validations
-        # 1 - $name (format)
-        $name = Controller::sanatizeStringInput(null, 'name', $name, $error, ['allow_null' => true, 'avoid_table_check' => true]);
-        
-        # 2 - $page_number (format)
-        $page_number = Controller::sanatizeIntegerInput(null, 'page_number', $page_number, $error, ['allow_null' => true, 'avoid_table_check' => true, 'invalid_value' => 0]);
-        
-        if (is_null($error)) {
-            
-            $elements_per_page = 100;
-            if (is_null($page_number)) {
-                $page_number = 1;
-            }
-            
-            $query = \DB::table('merchants')->where('deleted', '!=', 1);
-            if (!is_null($name)) {
-                $query->where('name', 'like', $name.'%');
-            }
-            
-            $total_elemts_qty = $query->count();
-            
-            $result = [
-                'collection' => $query->skip($elements_per_page * ($page_number-1))->take($elements_per_page)->get(),
-                'pagination' => [
-                    'previous_page_number' => ($page_number > 1) ? $page_number-1 : null,
-                    'current_page_number' => $page_number,
-                    'next_page_number' => ($total_elemts_qty > ($page_number * $elements_per_page)) ? $page_number+1 : null,
-                    'total_elemts' => $total_elemts_qty,
-                    'total_elemts_per_page' => $elements_per_page
-                ]
-            ];
-            
-            return response()->json($result);
-            
-        } else {
-            
-            return $error;
-            
-        }
-
+        return Controller::paginateResults([
+            'table' => 'merchants',
+            'filter_deleted_items' => true,
+            'request' => $request
+        ]);
     }
     
     /**
@@ -319,17 +278,20 @@ class MerchantsController extends Controller
         if (is_null($error)) {
             
             // delete
-            $tmp_category = \DB::table('merchants')->where('id', $id)->first();
-            
+            $tmp_object = \DB::table('merchants')->where('id', $id)->first();
             
             // Logical deletion
-            \App\Models\Merchant::where('id', $id)->update([
-                'deleted' => 1,
-                'deleted_at' => date('Y-m-d H:i:s'),
-                'sitemap_category_id' => 1 // internal sitemap_category_id for deleted merchants
-            ]);
+            if ($tmp_object->deleted == false) {
+                \App\Models\Merchant::where('id', $id)->update([
+                    'name' => $tmp_object->name.' - DELETED #' . $id,
+                    'url' => $tmp_object->url.' - DELETED #' . $id,
+                    'deleted' => 1,
+                    'deleted_at' => date('Y-m-d H:i:s'),
+                    'sitemap_category_id' => 1 // internal sitemap_category_id for deleted merchants
+                ]);
+            }
             
-            return response()->json(['success' => 'Item deleted', 'data' => $tmp_category], 200);    
+            return response()->json(['success' => 'Item deleted', 'data' => $tmp_object], 200);    
             
         } else {
             

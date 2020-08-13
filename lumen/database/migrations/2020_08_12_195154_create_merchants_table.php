@@ -31,7 +31,8 @@ class CreateMerchantsTable extends Migration
                 ->comment('The Sitemap cateogory id (can not be null)');
             $table->foreign('sitemap_category_id')
                 ->references('id')
-                ->on('sitemap_categories');
+                ->on('sitemap_categories')
+                ->onDelete('cascade');
                 
             $table->boolean('deleted')->default(0);
             $table->dateTimeTz('deleted_at', 0)->nullable(true);

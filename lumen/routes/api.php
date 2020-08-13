@@ -21,9 +21,11 @@ $router->patch('/sitemap_categories/{id}/{new_name}', ['uses' => 'SitemapCategor
 ### DELETE
 $router->delete('/sitemap_categories/{id}', ['uses' => 'SitemapCategoriesController@delete']);
 
+
 # Sitemap Categories get merchants
 ### READ
 $router->get('/sitemap_categories/{sitemap_category_id}/merchants[/{page_number}]', ['uses' => 'SitemapCategoriesController@getMerchants']);
+
 
 # Merchants CREATE . READ . UPDATE . DELETE
 ### CREATE
@@ -35,3 +37,11 @@ $router->get('/merchants/{name}', ['uses' => 'MerchantsController@getMerchants']
 $router->patch('/merchants/{id}/{new_name}/{new_url}/{new_description}/{new_sitemap_category_id}', ['uses' => 'MerchantsController@update']);
 ### DELETE
 $router->delete('/merchants/{id}', ['uses' => 'MerchantsController@delete']);
+
+
+# Ad Campaigns CREATE . READ . UPDATE . DELETE
+### CREATE
+$router->post('/adcampaigns/{name}/{cash_back_rate}/{date_from}/{date_to}', ['uses' => 'AdcampaignsController@create']);
+### READ
+$router->get('/adcampaigns[/{name}/{page_number}]', ['uses' => 'AdcampaignsController@getAdcampaigns']);
+$router->get('/adcampaigns/{name}', ['uses' => 'AdcampaignsController@getAdcampaigns']);
