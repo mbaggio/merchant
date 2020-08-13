@@ -39,6 +39,60 @@ class MerchantsController extends Controller
     }
     
     /**
+     * @OA\Get(
+     *     path="/merchants-details/{id}",
+     *     description="Merchant info",
+     *     tags={"Merchants"},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        description="Merchant id",
+     *        required=true,
+     *        example="1"
+     *     ),
+     *     @OA\Response(response="200", description="Merchants info")
+     * )
+     */
+    public function getMerchantsInfo(Request $request, $id) {
+        $error = null;
+        $current_object_data = null;
+        
+        # 1 - $id (format and existant)
+        $id = Controller::sanatizeIntegerInput('merchants', 'id', $id, $error, ['should_exist' => true]);
+        
+        if (is_null($error)) {
+            
+            // exists 
+            $current_object_data = \DB::table('merchants')->where('id', $id)->first();
+            
+            if ($current_object_data->deleted == 1) {
+                $error = response()->json(['error' => 'Invalid merchant (deleted)', 'data' => ['table' => 'merchants', 'object' => $current_object_data]], 412, []);        
+            } 
+            
+        }
+        
+        if (is_null($error)) {
+            
+            $return = [];
+            $return['merchant_info'] = $current_object_data;
+            $return['active_campaigns'] = \DB::table('ad_campaign_merchants')
+                ->join('ad_campaigns', 'ad_campaigns.id', '=', 'ad_campaign_merchants.ad_campaign_id')
+                ->where('ad_campaign_merchants.merchant_id', '=', $id)
+                ->where('ad_campaigns.deleted', '!=', 1)
+                ->select('ad_campaigns.*')
+                ->get();
+
+            return response()->json($return, 201);    
+            
+        } else {
+            
+            return $error;
+            
+        }
+    }
+    
+    
+    /**
      * @OA\Post(
      *     path="/merchants/{name}/{url}/{description}/{sitemap_category_id}",
      *     description="New Merchant",

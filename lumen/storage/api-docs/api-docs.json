@@ -295,6 +295,29 @@
                 }
             }
         },
+        "/merchants-details/{id}": {
+            "get": {
+                "tags": [
+                    "Merchants"
+                ],
+                "description": "Merchant info",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::getMerchantsInfo",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Merchant id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Merchants info"
+                    }
+                }
+            }
+        },
         "/merchants/{name}/{url}/{description}/{sitemap_category_id}": {
             "post": {
                 "tags": [

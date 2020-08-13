@@ -33,6 +33,7 @@ $router->post('/merchants/{name}/{url}/{description}/{sitemap_category_id}', ['u
 ### READ
 $router->get('/merchants[/{name}/{page_number}]', ['uses' => 'MerchantsController@getMerchants']);
 $router->get('/merchants/{name}', ['uses' => 'MerchantsController@getMerchants']);
+$router->get('/merchants-details/{id}', ['uses' => 'MerchantsController@getMerchantsInfo']);
 ### UPDATE
 $router->patch('/merchants/{id}/{new_name}/{new_url}/{new_description}/{new_sitemap_category_id}', ['uses' => 'MerchantsController@update']);
 ### DELETE
