@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class AdcampaignsController extends Controller
 {
@@ -14,10 +15,9 @@ class AdcampaignsController extends Controller
      *     @OA\Parameter(
      *        name="name",
      *        in="path",
-     *        description="AdCampaign name",
+     *        description="AdCampaign name filter (optional)",
      *        required=false,
-     *        example="Xmas",
-     *        allowEmptyValue=true,
+     *        allowEmptyValue=true
      *     ),
      *     @OA\Parameter(
      *        name="page_number",
@@ -25,7 +25,7 @@ class AdcampaignsController extends Controller
      *        description="Page number",
      *        required=false,
      *        example=1,
-     *        allowEmptyValue=true,
+     *        allowEmptyValue=true
      *     ),
      *     @OA\Response(response="200", description="AdCampaigns list")
      * )
@@ -46,30 +46,26 @@ class AdcampaignsController extends Controller
      *     @OA\Parameter(
      *        name="name",
      *        in="path",
-     *        description="AdCampaign name",
-     *        required=true,
-     *        example="Xmas in July"
+     *        description="AdCampaign name - example: Xmas in July",
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="cash_back_rate",
      *        in="path",
      *        description="AdCampaign cash_back_rate (in %)",
-     *        required=true,
-     *        example="5.5"
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="date_from",
      *        in="path",
-     *        description="AdCampaign Start date",
-     *        required=true,
-     *        example="2020-07-01 15:00:00"
+     *        description="Start example: 2020-07-01 15:00:00",
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="date_to",
      *        in="path",
-     *        description="AdCampaign End date",
-     *        required=true,
-     *        example="2020-07-03 15:00:00"
+     *        description="End example: 2020-07-03 15:00:00",
+     *        required=true
      *     ),
      *     @OA\Response(response="201", description="New AdCampaign addedd"),
      *     @OA\Response(response="412", description="Precondition Failed")
@@ -127,28 +123,24 @@ class AdcampaignsController extends Controller
      *        name="new_name",
      *        in="path",
      *        description="AdCampaign new name",
-     *        example="Xmas in December",
      *        required=false
      *     ),
      *     @OA\Parameter(
      *        name="new_cash_back_rate",
      *        in="path",
      *        description="Adcampaign new cash_back_rate",
-     *        example="10.2",
      *        required=false
      *     ),
      *     @OA\Parameter(
      *        name="new_date_from",
      *        in="path",
      *        description="Adcampaign new date_from",
-     *        example="2020-02-02",
      *        required=false
      *     ),
      *     @OA\Parameter(
      *        name="new_date_to",
      *        in="path",
      *        description="Adcampaign new date_to",
-     *        example="2020-02-20",
      *        required=false
      *     ),
      *     @OA\Response(response="200", description="Adcampaign updated"),
@@ -232,8 +224,8 @@ class AdcampaignsController extends Controller
                 // update this new category in our DB
                 \App\Models\AdCampaign::where('id', $id)->update($changes);
 
-                // store it in elastic
-                // $this->sendToElastic('info', 'tag_unico', 'New Category "'.$valor.'"');
+                // clear merchant cache
+                AdCampaignController::clearMerchantCacheForCampaign($id);
 
                 return response()->json(['success' => 'Item updated', 'data' => ['id' => $id, 'data' => $changes]], 200);
                 
@@ -260,8 +252,7 @@ class AdcampaignsController extends Controller
      *        name="id",
      *        in="path",
      *        description="Adcampaign id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Response(response="200", description="Adcampaign deleted"),
      *     @OA\Response(response="412", description="Precondition Failed")
@@ -294,6 +285,9 @@ class AdcampaignsController extends Controller
                 ]);
             }
             
+            // clear merchant cache
+            AdCampaignController::clearMerchantCacheForCampaign($id);
+            
             return response()->json(['success' => 'Item deleted', 'data' => $tmp_object], 200);    
             
         } else {
@@ -303,6 +297,27 @@ class AdcampaignsController extends Controller
         }
         
     }
+    
+    public static function clearMerchantCacheForCampaign($ad_campaign_id) {
+        
+        $merchants = \DB::table('merchants')
+                ->join('ad_campaign_merchants', 'merchants.id', '=', 'ad_campaign_merchants.merchant_id')
+                ->join('ad_campaigns', 'ad_campaigns.id', '=', 'ad_campaign_merchants.ad_campaign_id')
+                ->where('merchants.deleted', '!=', 1)
+                ->where('ad_campaigns.deleted', '!=', 1)
+                ->where('ad_campaigns.id', '=', $adcampaign_id)
+                ->select('merchants.*')
+                ->get();
+            
+        foreach ($merchants as $merchant) {
+            // cache clear
+            $cache_key = 'getMerchantsInfo:'.$merchant->id;
+            if (Redis::exists($cache_key)) {
+                Redis::del($cache_key);
+            }
+        }
+
+    } 
     
     /**********************************************************
     /**********************************************************
@@ -318,8 +333,7 @@ class AdcampaignsController extends Controller
      *        name="adcampaign_id",
      *        in="path",
      *        description="AdCampaign ID",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="page_number",
@@ -327,7 +341,7 @@ class AdcampaignsController extends Controller
      *        description="Page number",
      *        required=false,
      *        example=1,
-     *        allowEmptyValue=true,
+     *        allowEmptyValue=true
      *     ),
      *     @OA\Response(response="200", description="AdCampaigns merchants list")
      * )
@@ -382,8 +396,7 @@ class AdcampaignsController extends Controller
      *        name="adcampaign_id",
      *        in="path",
      *        description="AdCampaign id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="merchant_id",
@@ -423,6 +436,12 @@ class AdcampaignsController extends Controller
                 'merchant_id' => $merchant_id
             ]);
             
+            // cache clear
+            $cache_key = 'getMerchantsInfo:'.$merchant_id;
+            if (Redis::exists($cache_key)) {
+                Redis::del($cache_key);
+            }
+            
             return response()->json(['success' => 'Item addedd', 'data' => $new], 201);
 
         } else {
@@ -441,8 +460,7 @@ class AdcampaignsController extends Controller
      *        name="adcampaign_id",
      *        in="path",
      *        description="AdCampaign id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="merchant_id",
@@ -480,6 +498,12 @@ class AdcampaignsController extends Controller
                 ->where('ad_campaign_id', $adcampaign_id)
                 ->where('merchant_id', $merchant_id)
                 ->delete();
+            
+            // cache clear
+            $cache_key = 'getMerchantsInfo:'.$merchant_id;
+            if (Redis::exists($cache_key)) {
+                Redis::del($cache_key);
+            }
             
             return response()->json(['success' => 'Item deleted', 'data' => ['ad_campaign_id' => $adcampaign_id, 'merchant_id' => $merchant_id ]], 200);
         

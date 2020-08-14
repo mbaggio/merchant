@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class MerchantsController extends Controller
 {
@@ -14,10 +15,9 @@ class MerchantsController extends Controller
      *     @OA\Parameter(
      *        name="name",
      *        in="path",
-     *        description="Merchant name",
+     *        description="Merchant name (example: Ebay)",
      *        required=false,
-     *        example="Ebay",
-     *        allowEmptyValue=true,
+     *        allowEmptyValue=true
      *     ),
      *     @OA\Parameter(
      *        name="page_number",
@@ -25,12 +25,12 @@ class MerchantsController extends Controller
      *        description="Page number",
      *        required=false,
      *        example=1,
-     *        allowEmptyValue=true,
+     *        allowEmptyValue=true
      *     ),
      *     @OA\Response(response="200", description="Merchants list")
      * )
      */
-    public function getMerchants(Request $request) {
+    public function getMerchants(Request $request) {        
         return Controller::paginateResults([
             'table' => 'merchants',
             'filter_deleted_items' => true,
@@ -47,13 +47,48 @@ class MerchantsController extends Controller
      *        name="id",
      *        in="path",
      *        description="Merchant id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Response(response="200", description="Merchants info")
      * )
      */
     public function getMerchantsInfo(Request $request, $id) {
+        
+        $cache_key = 'getMerchantsInfo:'.$id;
+        if (Redis::exists($cache_key)) {
+            
+            // get data from redis
+            $data = json_decode(Redis::get($cache_key), true);
+            $data['cache_data'] = true;
+            $return = response()->json($data, 200);
+            
+        } else {
+
+            // get data from DB
+            $data = MerchantsController::getMerchantsInfoFromDB($request, $id);
+            
+            if (is_array($data) && isset($data['success'])) {
+                // save in Redis
+                Redis::set($cache_key, json_encode($data));
+                Redis::expire($cache_key, 60);
+                $data['cache_data'] = false;
+                
+                $return = response()->json($data, 200);
+                
+            } else {
+                
+                $return = $data;
+                
+            }
+            
+
+        }
+        
+        return $return;
+    }
+    
+    public static function getMerchantsInfoFromDB(Request $request, $id) {
+        
         $error = null;
         $current_object_data = null;
         
@@ -74,6 +109,7 @@ class MerchantsController extends Controller
         if (is_null($error)) {
             
             $return = [];
+            $return['success'] = true;
             $return['merchant_info'] = $current_object_data;
             $return['active_campaigns'] = \DB::table('ad_campaign_merchants')
                 ->join('ad_campaigns', 'ad_campaigns.id', '=', 'ad_campaign_merchants.ad_campaign_id')
@@ -87,7 +123,7 @@ class MerchantsController extends Controller
                 ->first();
             $return['affiliate_data'] = !empty($affiliate_data) ? $affiliate_data : null;
 
-            return response()->json($return, 200);    
+            return $return;   
             
         } else {
             
@@ -105,30 +141,26 @@ class MerchantsController extends Controller
      *     @OA\Parameter(
      *        name="name",
      *        in="path",
-     *        description="Merchant name",
-     *        required=true,
-     *        example="Ebay"
+     *        description="Merchant name (Example: Ebay)",
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="url",
      *        in="path",
-     *        description="Merchant URL",
-     *        required=true,
-     *        example="http://www.ebay.com"
+     *        description="Merchant URL (example: http://www.ebay.com)",
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="description",
      *        in="path",
-     *        description="Merchant Description",
-     *        required=true,
-     *        example="eBay Inc. is a global commerce leader that connects millions of buyers and sellers around the world. We exist to enable economic opportunity for individuals, entrepreneurs, businesses and organizations of all sizes. Our portfolio of brands includes eBay Marketplace and eBay Classifieds Group, operating in 190 markets around the world."
+     *        description="Merchant Description (long text)",
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="sitemap_category_id",
      *        in="path",
-     *        description="Merchant Sitemap Category ID",
-     *        required=true,
-     *        example="1"
+     *        description="Sitemap Category ID",
+     *        required=true
      *     ),
      *     @OA\Response(response="201", description="New Merchant addedd"),
      *     @OA\Response(response="412", description="Precondition Failed")
@@ -179,35 +211,30 @@ class MerchantsController extends Controller
      *        name="id",
      *        in="path",
      *        description="Merchant ID",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="new_name",
      *        in="path",
      *        description="Merchant new name",
-     *        example="NY News Paper",
      *        required=false
      *     ),
      *     @OA\Parameter(
      *        name="new_url",
      *        in="path",
      *        description="Merchant new url",
-     *        example="http://www.example.com",
      *        required=false
      *     ),
      *     @OA\Parameter(
      *        name="new_description",
      *        in="path",
      *        description="Merchant new description",
-     *        example="",
      *        required=false
      *     ),
      *     @OA\Parameter(
      *        name="new_sitemap_category_id",
      *        in="path",
      *        description="Merchant new sitemap_category_id",
-     *        example="1",
      *        required=false
      *     ),
      *     @OA\Response(response="200", description="Merchant updated"),
@@ -242,7 +269,7 @@ class MerchantsController extends Controller
         
         # 2 - $new_name
         $new_name = trim(urldecode($new_name));
-        $new_name = ($new_name == '{new_name}') ? null : $new_name;
+        $new_name = ($new_name == '{new_name}' || $new_name == ',') ? null : $new_name;
         if (is_null($error) && !is_null($current_data) && !is_null($new_name) && $current_data->name != $new_name) {
             $new_name = Controller::sanatizeStringInput('merchants', 'name', $new_name, $error);
             $changes['name'] = $new_name;
@@ -250,9 +277,9 @@ class MerchantsController extends Controller
 
         # 3 - $new_url
         $new_url = trim(urldecode($new_url));
-        $new_url = ($new_url == '{new_url}') ? null : $new_url;
-        if (is_null($error) && !is_null($current_data) && $current_data->url != $new_url) {
-            $new_url = Controller::sanatizeStringInput('merchants', 'url', $new_url, $error);
+        $new_url = ($new_url == '{new_url}' || $new_url == ',') ? null : $new_url;
+        if (is_null($error) && !is_null($current_data) && !is_null($new_url) && $current_data->url != $new_url) {
+            $new_url = Controller::sanatizeStringInput('merchants', 'url', $new_url, $error, ['allow_null' => true]);
             $changes['url'] = $new_url;
         }
         
@@ -260,14 +287,14 @@ class MerchantsController extends Controller
         $new_description = trim(urldecode($new_description));
         $new_description = ($new_description == '{new_description}') ? null : $new_description;
         if (is_null($error) && !is_null($current_data) && $current_data->description != $new_description) {
-            $new_description = Controller::sanatizeStringInput('merchants', 'description', $new_description, $error, ['avoid_table_check' => true]);
+            $new_description = Controller::sanatizeStringInput('merchants', 'description', $new_description, $error, ['allow_null' => true, 'avoid_table_check' => true]);
             $changes['description'] = $new_description;
         }
         
         # 5 - $new_sitemap_category_id
         $new_sitemap_category_id = trim(urldecode($new_sitemap_category_id));
-        $new_sitemap_category_id = ($new_sitemap_category_id == '{new_sitemap_category_id}') ? null : $new_sitemap_category_id;
-        if (is_null($error) && !is_null($current_data) && $current_data->sitemap_category_id != $new_sitemap_category_id) {
+        $new_sitemap_category_id = ($new_sitemap_category_id == '{new_sitemap_category_id}' || $new_sitemap_category_id == ',') ? null : $new_sitemap_category_id;
+        if (is_null($error) && !is_null($current_data) && !is_null($new_sitemap_category_id) && $current_data->sitemap_category_id != $new_sitemap_category_id) {
             $new_sitemap_category_id = Controller::sanatizeIntegerInput('sitemap_categories', 'id', $new_sitemap_category_id, $error, ['should_exist' => true, 'invalid_value' => 1]); 
             $changes['sitemap_category_id'] = $new_sitemap_category_id;
         }
@@ -281,8 +308,11 @@ class MerchantsController extends Controller
                 // update this new category in our DB
                 \App\Models\Merchant::where('id', $id)->update($changes);
 
-                // store it in elastic
-                // $this->sendToElastic('info', 'tag_unico', 'New Category "'.$valor.'"');
+                // cache clear
+                $cache_key = 'getMerchantsInfo:'.$id;
+                if (Redis::exists($cache_key)) {
+                    Redis::del($cache_key);
+                }
 
                 return response()->json(['success' => 'Item updated', 'data' => ['id' => $id, 'data' => $changes]], 200);
                 
@@ -310,8 +340,7 @@ class MerchantsController extends Controller
      *        name="id",
      *        in="path",
      *        description="Merchant id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Response(response="200", description="Merchant deleted"),
      *     @OA\Response(response="412", description="Precondition Failed")
@@ -346,6 +375,12 @@ class MerchantsController extends Controller
                 ]);
             }
             
+            // cache clear
+            $cache_key = 'getMerchantsInfo:'.$id;
+            if (Redis::exists($cache_key)) {
+                Redis::del($cache_key);
+            }
+            
             return response()->json(['success' => 'Item deleted', 'data' => $tmp_object], 200);    
             
         } else {
@@ -371,15 +406,13 @@ class MerchantsController extends Controller
      *        name="merchant_id",
      *        in="path",
      *        description="Merchant id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="cash_back_rate",
      *        in="path",
-     *        description="AdCampaign cash_back_rate (in %)",
-     *        required=true,
-     *        example="5.5"
+     *        description="AdCampaign cash_back_rate (decimal number)",
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="logo1_url",
@@ -432,7 +465,7 @@ class MerchantsController extends Controller
      *     @OA\Parameter(
      *        name="shipping_address_country_code",
      *        in="path",
-     *        description="Shipping CountryCode (Format: a three-letter - ISO 3166-1 alpha-3)",
+     *        description="Shipping CountryCode (a three-letter ISO 3166-1 alpha-3)",
      *        required=false
      *     ),
      *     @OA\Parameter(
@@ -468,7 +501,7 @@ class MerchantsController extends Controller
      *     @OA\Parameter(
      *        name="billing_address_country_code",
      *        in="path",
-     *        description="Billing CountryCode (Format: a three-letter - ISO 3166-1 alpha-3)",
+     *        description="Billing CountryCode (a three-letter - ISO 3166-1 alpha-3)",
      *        required=false
      *     ),
      *     @OA\Response(response="201", description="Merchant addedd as affiliate"),
@@ -526,6 +559,12 @@ class MerchantsController extends Controller
             // Save this new affiliate relationship into the DB
             \App\Models\MerchantAffiliate::create($data);
             
+            // cache clear
+            $cache_key = 'getMerchantsInfo:'.$data['merchant_id'];
+            if (Redis::exists($cache_key)) {
+                Redis::del($cache_key);
+            }
+            
             return response()->json(['success' => 'Merchant addedd as affiliate', 'data' => $data], 201);
 
         } else {
@@ -545,15 +584,13 @@ class MerchantsController extends Controller
      *        name="merchant_id",
      *        in="path",
      *        description="Merchant id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="cash_back_rate",
      *        in="path",
-     *        description="AdCampaign cash_back_rate (in %)",
-     *        required=true,
-     *        example="5.5"
+     *        description="AdCampaign cash_back_rate (decimal number)",
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="logo1_url",
@@ -723,6 +760,12 @@ class MerchantsController extends Controller
                 // update this new category in our DB
                 \App\Models\MerchantAffiliate::where('merchant_id', $params['merchant_id'])->update($changes);
 
+                // cache clear
+                $cache_key = 'getMerchantsInfo:'.$params['merchant_id'];
+                if (Redis::exists($cache_key)) {
+                    Redis::del($cache_key);
+                }
+
                 return response()->json(['success' => 'Item updated', 'data' => $changes], 200);
                 
             } else {
@@ -748,8 +791,7 @@ class MerchantsController extends Controller
      *        name="merchant_id",
      *        in="path",
      *        description="Merchant id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Response(response="200", description="Merchant deleted"),
      *     @OA\Response(response="412", description="Precondition Failed")
@@ -767,6 +809,12 @@ class MerchantsController extends Controller
             // delete
             $tmp_category = clone \DB::table('merchant_affiliates')->where('merchant_id', $merchant_id)->first();
             \App\Models\MerchantAffiliate::where('merchant_id', $merchant_id)->delete();
+
+            // cache clear
+            $cache_key = 'getMerchantsInfo:'.$merchant_id;
+            if (Redis::exists($cache_key)) {
+                Redis::del($cache_key);
+            }
 
             return response()->json(['success' => 'Item deleted', 'data' => $tmp_category], 200);    
             

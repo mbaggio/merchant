@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+### APP Service (Swoole) ##########################
   swoole_server:
     container_name: container_swoole_server
     build: ./swoole/
@@ -13,6 +14,7 @@ services:
     links:
       - "db_server:db_server"
 
+### DB Service (MySQL) ##########################
   db_server:
     container_name: container_db_server
     build: ./mysql/
@@ -23,3 +25,12 @@ services:
       - MYSQL_USER=${DB_USERNAME}
       - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+
+### CACHE Service (REDIS) ##########################
+  cache_server:
+    container_name: container_cache_server
+    build: ./redis/
+    volumes:
+      - ./redis:/data
+    ports:
+      - "6379:6379"

@@ -54,7 +54,7 @@ class Controller extends BaseController
     public static function sanatizeIntegerInput($table, $key_name, $value, &$error = null, $options = []) {
         $value = trim(urldecode($value));
         $value = (empty($value) && isset($options['allow_null'])) ? null : $value;
-        $value = (substr($value, 0, 1) == '{' && substr($value, -1, 1) == '}') ? null : $value;
+        $value = ((substr($value, 0, 1) == '{' && substr($value, -1, 1) == '}') || $value == ',') ? null : $value;
         
         if (is_null($error)) {
             

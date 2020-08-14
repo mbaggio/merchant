@@ -8,7 +8,9 @@
         "php": "^7.2.5",
         "darkaonline/swagger-lume": "^7.0",
         "guzzlehttp/ringphp": "^1.1",
+        "illuminate/redis": "^7.25",
         "laravel/lumen-framework": "^7.0",
+        "predis/predis": "^1.1",
         "rinvex/countries": "^7.3",
         "swooletw/laravel-swoole": "^2.6"
     },

@@ -28,8 +28,9 @@ $app->withFacades();
 $app->withEloquent();
 
 $app->configure('swagger-lume');
-// $app->configure('elastic');
+$app->configure('database');
 
+$app->alias('RedisManager', \Illuminate\Support\Facades\Redis::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -100,6 +101,7 @@ $app->configure('app');
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(SwooleTW\Http\LumenServiceProvider::class);
 $app->register(\SwaggerLume\ServiceProvider::class);
+$app->register(\Illuminate\Redis\RedisServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

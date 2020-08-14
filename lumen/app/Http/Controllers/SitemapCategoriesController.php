@@ -25,8 +25,7 @@ class SitemapCategoriesController extends Controller
      *        name="sitemap_category_id",
      *        in="path",
      *        description="Sitemap category id",
-     *        required=true,
-     *        example=12
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="page_number",
@@ -95,8 +94,7 @@ class SitemapCategoriesController extends Controller
      *        in="path",
      *        description="Category parent id",
      *        required=false,
-     *        allowEmptyValue=true,
-     *        example=12
+     *        allowEmptyValue=true
      *     ),
      *     @OA\Response(response="201", description="New Sitemap cateogory addedd"),
      *     @OA\Response(response="412", description="Precondition Failed")
@@ -144,15 +142,13 @@ class SitemapCategoriesController extends Controller
      *        name="id",
      *        in="path",
      *        description="Category ID",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Parameter(
      *        name="new_name",
      *        in="path",
      *        description="Category new name",
-     *        required=true,
-     *        example="NY News Paper"
+     *        required=true
      *     ),
      *     @OA\Response(response="200", description="Sitemap cateogory updated"),
      *     @OA\Response(response="412", description="Precondition Failed")
@@ -200,8 +196,7 @@ class SitemapCategoriesController extends Controller
      *        name="id",
      *        in="path",
      *        description="Category id",
-     *        required=true,
-     *        example="1"
+     *        required=true
      *     ),
      *     @OA\Response(response="200", description="Sitemap cateogory deleted"),
      *     @OA\Response(response="412", description="Precondition Failed")
