@@ -39,6 +39,16 @@ $router->patch('/merchants/{id}/{new_name}/{new_url}/{new_description}/{new_site
 ### DELETE
 $router->delete('/merchants/{id}', ['uses' => 'MerchantsController@delete']);
 
+# Merchants Affiliate CREATE . UPDATE . DELETE
+### CREATE
+$txt_fields = implode('}/{', ['logo1_url', 'logo2_url', 'logo3_url', 'shipping_address_first_name', 'shipping_address_last_name', 'shipping_address_street', 'shipping_address_postalcode', 
+            'shipping_address_state', 'shipping_address_country_code', 'billing_address_first_name', 'billing_address_last_name', 'billing_address_street', 
+            'billing_address_postalcode', 'billing_address_state', 'billing_address_country_code']);
+$router->post('/merchants-affiliate/{merchant_id}/{cash_back_rate}[/{'.$txt_fields.'}]', ['uses' => 'MerchantsController@createMerchantsAffiliation']);
+### UPDATE
+$router->patch('/merchants-affiliate/{merchant_id}/{cash_back_rate}[/{'.$txt_fields.'}]', ['uses' => 'MerchantsController@updateMerchantsAffiliation']);
+# DELETE
+$router->delete('/merchants-affiliate/{merchant_id}', ['uses' => 'MerchantsController@deleteMerchantsAffiliation']);
 
 # Ad Campaigns CREATE . READ . UPDATE . DELETE
 ### CREATE

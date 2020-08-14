@@ -402,7 +402,7 @@ class AdcampaignsController extends Controller
         # 1 - $adcampaign_id (format and existant)
         $adcampaign_id = Controller::sanatizeIntegerInput('ad_campaigns', 'id', $adcampaign_id, $error, ['should_exist' => true, 'check_logical_delete' => true]);
         
-        # 1 - $merchant_id (format and existant)
+        # 2 - $merchant_id (format and existant)
         $merchant_id = Controller::sanatizeIntegerInput('merchants', 'id', $merchant_id, $error, ['should_exist' => true, 'check_logical_delete' => true]);
         
         // check for unique

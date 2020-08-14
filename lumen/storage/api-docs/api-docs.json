@@ -445,6 +445,276 @@
                 }
             }
         },
+        "/merchants-affiliate/{merchant_id}/{cash_back_rate}/{logo1_url}/{logo2_url}/{logo3_url}/{shipping_address_first_name}/{shipping_address_last_name}/{shipping_address_street}/{shipping_address_postalcode}/{shipping_address_state}/{shipping_address_country_code}/{billing_address_first_name}/{billing_address_last_name}/{billing_address_street}/{billing_address_postalcode}/{billing_address_state}/{billing_address_country_code}": {
+            "post": {
+                "tags": [
+                    "Merchants Affiliates"
+                ],
+                "description": "Add merchant as affiliate",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::createMerchantsAffiliation",
+                "parameters": [
+                    {
+                        "name": "merchant_id",
+                        "in": "path",
+                        "description": "Merchant id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "cash_back_rate",
+                        "in": "path",
+                        "description": "AdCampaign cash_back_rate (in %)",
+                        "required": true,
+                        "example": "5.5"
+                    },
+                    {
+                        "name": "logo1_url",
+                        "in": "path",
+                        "description": "logo1 URL",
+                        "required": false
+                    },
+                    {
+                        "name": "logo2_url",
+                        "in": "path",
+                        "description": "logo2 URL",
+                        "required": false
+                    },
+                    {
+                        "name": "logo3_url",
+                        "in": "path",
+                        "description": "logo3 URL",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_first_name",
+                        "in": "path",
+                        "description": "Shipping First name",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_last_name",
+                        "in": "path",
+                        "description": "Shipping Last name",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_street",
+                        "in": "path",
+                        "description": "Shipping Street address",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_postalcode",
+                        "in": "path",
+                        "description": "Shipping Postal",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_state",
+                        "in": "path",
+                        "description": "Shipping State",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_country_code",
+                        "in": "path",
+                        "description": "Shipping CountryCode (Format: a three-letter - ISO 3166-1 alpha-3)",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_first_name",
+                        "in": "path",
+                        "description": "Billing First name",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_last_name",
+                        "in": "path",
+                        "description": "Billing Last name",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_street",
+                        "in": "path",
+                        "description": "Billing Street address",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_postalcode",
+                        "in": "path",
+                        "description": "Billing Postal",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_state",
+                        "in": "path",
+                        "description": "Billing State",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_country_code",
+                        "in": "path",
+                        "description": "Billing CountryCode (Format: a three-letter - ISO 3166-1 alpha-3)",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Merchant addedd as affiliate"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Merchants Affiliates"
+                ],
+                "description": "Update merchant affiliate data",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::updateMerchantsAffiliation",
+                "parameters": [
+                    {
+                        "name": "merchant_id",
+                        "in": "path",
+                        "description": "Merchant id",
+                        "required": true,
+                        "example": "1"
+                    },
+                    {
+                        "name": "cash_back_rate",
+                        "in": "path",
+                        "description": "AdCampaign cash_back_rate (in %)",
+                        "required": true,
+                        "example": "5.5"
+                    },
+                    {
+                        "name": "logo1_url",
+                        "in": "path",
+                        "description": "logo1 URL",
+                        "required": false
+                    },
+                    {
+                        "name": "logo2_url",
+                        "in": "path",
+                        "description": "logo2 URL",
+                        "required": false
+                    },
+                    {
+                        "name": "logo3_url",
+                        "in": "path",
+                        "description": "logo3 URL",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_first_name",
+                        "in": "path",
+                        "description": "Shipping First name",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_last_name",
+                        "in": "path",
+                        "description": "Shipping Last name",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_street",
+                        "in": "path",
+                        "description": "Shipping Street address",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_postalcode",
+                        "in": "path",
+                        "description": "Shipping Postal",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_state",
+                        "in": "path",
+                        "description": "Shipping State",
+                        "required": false
+                    },
+                    {
+                        "name": "shipping_address_country_code",
+                        "in": "path",
+                        "description": "Shipping CountryCode (Format: a three-letter - ISO 3166-1 alpha-3)",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_first_name",
+                        "in": "path",
+                        "description": "Billing First name",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_last_name",
+                        "in": "path",
+                        "description": "Billing Last name",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_street",
+                        "in": "path",
+                        "description": "Billing Street address",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_postalcode",
+                        "in": "path",
+                        "description": "Billing Postal",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_state",
+                        "in": "path",
+                        "description": "Billing State",
+                        "required": false
+                    },
+                    {
+                        "name": "billing_address_country_code",
+                        "in": "path",
+                        "description": "Billing CountryCode (Format: a three-letter - ISO 3166-1 alpha-3)",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Merchant updated"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
+        "/merchants-affiliate/{merchant_id}": {
+            "delete": {
+                "tags": [
+                    "Merchants Affiliates"
+                ],
+                "description": "Remove Affiliate asociation",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::deleteMerchantsAffiliation",
+                "parameters": [
+                    {
+                        "name": "merchant_id",
+                        "in": "path",
+                        "description": "Merchant id",
+                        "required": true,
+                        "example": "1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Merchant deleted"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
         "/sitemap_categories": {
             "get": {
                 "tags": [

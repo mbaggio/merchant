@@ -114,7 +114,7 @@ class SitemapCategoriesController extends Controller
         
         # 2 - $parent_id (format and existant)
         $parent_id = Controller::sanatizeIntegerInput('sitemap_categories', 'id', $parent_id, $error, ['allow_null' => true, 'should_exist' => true, 'invalid_value' => 1]);
-        
+
         if (is_null($error)) {            
                 
             // Save this new category in our DB
@@ -217,7 +217,7 @@ class SitemapCategoriesController extends Controller
         # 2 - $id (existant Categories relationships)
         Controller::sanatizeIntegerInput('sitemap_categories', 'parent_id', $id, $error, ['should_not_exist' => true]);
         
-        # 2 - $id (existant Merchants relationships)
+        # 3 - $id (existant Merchants relationships)
         Controller::sanatizeIntegerInput('merchants', 'sitemap_category_id', $id, $error, ['should_not_exist' => true]);
         
         if (is_null($error)) {

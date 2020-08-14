@@ -20,20 +20,33 @@ class Controller extends BaseController
     
     public static function sanatizeStringInput($table, $key_name, $value, &$error = null, $options = []) {
         $value = trim(urldecode($value));
-        $value = ($value == '{'.$key_name.'}') ? null : $value;
+        $value = ($value == '{'.$key_name.'}' || $value == "" || $value == ',') ? null : $value;
         
-        if (is_null($error)) {
-            if (is_null($value)) {
-                $error = response()->json(['error' => ''.ucwords($key_name).' can not be empty', 'data' => $value], 412, []);        
-            } elseif (empty($options) || !isset($options['avoid_table_check'])) {
-                // search for that name - similar category check
-                $item = \DB::table($table)->where($key_name, $value)->first();
+        if (is_null($error) && is_null($value) && !isset($options['allow_null'])) {
+            $error = response()->json(['error' => ''.ucwords($key_name).' can not be empty', 'data' => $value], 412, []);        
+        } 
+        
+        if (is_null($error) && !is_null($value) && (empty($options) || !isset($options['avoid_table_check']))) {                
+            // search for that name - similar category check
+            $item = \DB::table($table)->where($key_name, $value)->first();
 
-                if (!empty($item)) {
-                    $error = response()->json(['error' => ''.ucwords($key_name).' already exists', 'data' => ['table' => $table, 'object' => $item]], 412, []);        
-                }
-            }
+            if (!empty($item)) {
+                $error = response()->json(['error' => ''.ucwords($key_name).' already exists', 'data' => ['table' => $table, 'object' => $item]], 412, []);        
+            }            
         }
+        
+        return $value;
+    }
+    
+    public static function sanatizeCountryCodeInput($key_name, $value, &$error = null, $options = []) {
+        $value = trim(urldecode($value));
+        $value = ($value == '{'.$key_name.'}' || $value == "" || $value == ',') ? null : $value;
+        
+        if (is_null($error) && is_null($value) && !isset($options['allow_null'])) {
+            $error = response()->json(['error' => ''.ucwords($key_name).' can not be empty', 'data' => $value], 412, []);        
+        } 
+        
+        
         
         return $value;
     }
