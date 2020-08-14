@@ -491,7 +491,7 @@
                     {
                         "name": "shipping_address_country_code",
                         "in": "path",
-                        "description": "Shipping CountryCode (a three-letter ISO 3166-1 alpha-3)",
+                        "description": "Shipping CountryCode (a two-letter ISO 3166-1 alpha-2)",
                         "required": false
                     },
                     {
@@ -646,7 +646,7 @@
                     {
                         "name": "billing_address_country_code",
                         "in": "path",
-                        "description": "Billing CountryCode (Format: a three-letter - ISO 3166-1 alpha-3)",
+                        "description": "Billing CountryCode (Format: a two-letter - ISO 3166-1 alpha-2)",
                         "required": false
                     }
                 ],

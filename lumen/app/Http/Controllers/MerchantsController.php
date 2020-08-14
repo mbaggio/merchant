@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
+use Rinvex\Country\Country as RinvexCountry;
 
 class MerchantsController extends Controller
 {
@@ -465,7 +466,7 @@ class MerchantsController extends Controller
      *     @OA\Parameter(
      *        name="shipping_address_country_code",
      *        in="path",
-     *        description="Shipping CountryCode (a three-letter ISO 3166-1 alpha-3)",
+     *        description="Shipping CountryCode (a two-letter ISO 3166-1 alpha-2)",
      *        required=false
      *     ),
      *     @OA\Parameter(
@@ -537,10 +538,21 @@ class MerchantsController extends Controller
         
         # 4 - country fields
         $country_fields = ['shipping_address_country_code', 'billing_address_country_code'];
-        array_walk($country_fields, function($string_field_name) use (&$error, &$data, $params) {
-            $aux_value = isset($params[$string_field_name]) ? $params[$string_field_name] : null;
-            if (($aux_value = Controller::sanatizeCountryCodeInput($string_field_name, $aux_value, $error, ['allow_null' => true])) !== null) {
-                $data[$string_field_name] = $aux_value;
+        array_walk($country_fields, function($string_field_name) use (&$error, &$data, &$params) {
+            $params[$string_field_name] = (isset($params[$string_field_name]) && trim(urldecode($params[$string_field_name])) != '{'.$string_field_name.'}' && trim(urldecode($params[$string_field_name])) != ',') ? trim(urldecode($params[$string_field_name])) : null;
+            
+            if (is_null($error) && !is_null($params[$string_field_name])) {
+                $params[$string_field_name] = Controller::sanatizeStringInput(null, $string_field_name, $params[$string_field_name], $error, ['avoid_table_check' => true]);
+                
+                if (is_null($error)) {
+                    try {
+                        $tmp_country = country($params[$string_field_name]);   
+                        $data[$string_field_name] = $tmp_country->getIsoAlpha2();
+                    } catch (\Rinvex\Country\CountryLoaderException $e) {
+                        $error = response()->json(['error' => 'Invalid '.$string_field_name.' value', 'data' => $params[$string_field_name]], 412, []);
+                    }  
+                }
+                
             }
         });
         
@@ -679,7 +691,7 @@ class MerchantsController extends Controller
      *     @OA\Parameter(
      *        name="billing_address_country_code",
      *        in="path",
-     *        description="Billing CountryCode (Format: a three-letter - ISO 3166-1 alpha-3)",
+     *        description="Billing CountryCode (Format: a two-letter - ISO 3166-1 alpha-2)",
      *        required=false
      *     ),
      *     @OA\Response(response="200", description="Merchant updated"),
@@ -726,7 +738,7 @@ class MerchantsController extends Controller
         ];
         array_walk($txt_fields, function($string_field_name) use (&$error, &$params, &$current_data, &$changes) {
             $params[$string_field_name] = 
-                (isset($params[$string_field_name]) && $params[$string_field_name] != '{'.$string_field_name.'}' && $params[$string_field_name] != ',') ? trim(urldecode($params[$string_field_name])) : null;
+                (isset($params[$string_field_name]) && trim(urldecode($params[$string_field_name])) != '{'.$string_field_name.'}' && trim(urldecode($params[$string_field_name])) != ',') ? trim(urldecode($params[$string_field_name])) : null;
 
             if (is_null($error) && !is_null($current_data) && $current_data->$string_field_name != $params[$string_field_name]) {
                 $params[$string_field_name] = Controller::sanatizeStringInput('merchant_affiliates', $string_field_name, $params[$string_field_name], $error, ['allow_null' => true, 'avoid_table_check' => true]);
@@ -735,21 +747,26 @@ class MerchantsController extends Controller
 
         });
         
-        /*
-        
-        /// 
-        
         # 5 - country fields
         $country_fields = ['shipping_address_country_code', 'billing_address_country_code'];
-        array_walk($country_fields, function($string_field_name) use (&$error, &$data, $params) {
-            $aux_value = isset($params[$string_field_name]) ? $params[$string_field_name] : null;
-            if (($aux_value = Controller::sanatizeStringInput(null, $string_field_name, $aux_value, $error, ['allow_null' => true, 'avoid_table_check' => true])) !== null) {
-                $data[$string_field_name] = $aux_value;
+        array_walk($country_fields, function($string_field_name) use (&$error, &$params, &$current_data, &$changes) {
+            $params[$string_field_name] = (isset($params[$string_field_name]) && trim(urldecode($params[$string_field_name])) != '{'.$string_field_name.'}' && trim(urldecode($params[$string_field_name])) != ',') ? trim(urldecode($params[$string_field_name])) : null;
+            
+            if (is_null($error) && !is_null($current_data) && $current_data->$string_field_name != $params[$string_field_name]) {
+                $params[$string_field_name] = Controller::sanatizeStringInput(null, $string_field_name, $params[$string_field_name], $error, ['allow_null' => true, 'avoid_table_check' => true]);
+                
+                if (!is_null($params[$string_field_name])) {
+                    try {
+                        $tmp_country = country($params[$string_field_name]);   
+                        $changes[$string_field_name] = $tmp_country->getIsoAlpha2();
+                    } catch (\Rinvex\Country\CountryLoaderException $e) {
+                        $error = response()->json(['error' => 'Invalid '.$string_field_name.' value', 'data' => $params[$string_field_name]], 412, []);
+                    }
+                } else {
+                    $changes[$string_field_name] = $params[$string_field_name]; // null
+                }
             }
         });
-        
-        ///
-        */
 
         if (is_null($error)) {
             

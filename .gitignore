@@ -1,1 +1,2 @@
-lumen/.env
+./lumen/.env
+./redis/dump.rdb

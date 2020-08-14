@@ -48,9 +48,9 @@ class CreateMerchantAffiliatesTable extends Migration
             $table->string('shipping_address_state', 20)
                 ->nullable(true);
 
-            $table->string('shipping_address_country_code', 3)
+            $table->string('shipping_address_country_code', 2)
                 ->nullable(true)
-                ->comment('Format: a three-letter (ISO 3166-1 alpha-3)');;
+                ->comment('Format: a two-letter (ISO 3166-1 alpha-2)');;
             
             // Billing
             $table->string('billing_address_first_name', 20)
@@ -68,10 +68,10 @@ class CreateMerchantAffiliatesTable extends Migration
             $table->string('billing_address_state', 20)
                 ->nullable(true);
 
-            $table->string('billing_address_country_code', 3)
+            $table->string('billing_address_country_code', 2)
                 ->nullable(true)
-                ->comment('Format: a three-letter (ISO 3166-1 alpha-3)');;
-            
+                ->comment('Format: a two-letter (ISO 3166-1 alpha-2)');
+        
             $table->decimal('cash_back_rate', 5, 2)
                 ->nullable(false);
             
