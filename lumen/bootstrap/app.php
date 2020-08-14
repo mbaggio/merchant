@@ -29,6 +29,7 @@ $app->withEloquent();
 
 $app->configure('swagger-lume');
 $app->configure('database');
+$app->configure('elastic');
 
 $app->alias('RedisManager', \Illuminate\Support\Facades\Redis::class);
 

@@ -251,7 +251,7 @@ class Controller extends BaseController
         }
     }
     
-    public static function sendToElastic($type, $tag, $request)
+    public static function sendToElastic($type, $tag, $request_value)
     {
         //check if defined configuration for elasticsearch
         $elastic_server  = config('elastic.elastic_url') . ':' . config('elastic.elastic_port');
@@ -276,35 +276,33 @@ class Controller extends BaseController
             $token = 'Basic ' . Base64_encode($base);
 
             //create url for index
-            $elasticURL = $elastic_server . '/merchants-' . $env . '-log-' . $date . '/log/' . time();
+            $elasticURL = $elastic_server . '/merchants/'.$type;
             $headers = [
-                'Content-type' => 'application/json',
-                'Accept' => 'application/json',
-                'authorization' => $token,
+                'Content-type: application/json',
+                'Accept: application/json',
+                'authorization: '.$token,
+                'Cache-Control: no-cache'
             ];
+            
+            $json_values = ['tag' => $tag, 'value' => $request_value, 'time' => date('Y-m-d H:i:s')];
+
             //Disable SSL verification for elastic server
-            $client = new ClientHttp(array('curl' => array(CURLOPT_SSL_VERIFYPEER => false,),));
-
-            $payload = [
-                'date' => $date_time,
-                'type' => $type,
-                'log' => $tag,
-                'tk' => $request
-            ];
-
-            try {
-                $response = $client->post($elasticURL, [
-                    'headers' => $headers,
-                    RequestOptions::JSON => $payload
-                ]);
-            } catch (\Exception $e) {
-                //log error
-
-                if (!Cache::has('Notification-sent')) {
-                    //$this->LogToSlack('{' . config('app.env') . '} Elasticsearch connection error ' . $e->getMessage());
-                    Cache::put('Notification-sent', 'sent', 10);
-                }
-            }
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $elasticURL);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json_values));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLINFO_HEADER_OUT, false);
+            
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        
+            $server_output = curl_exec($ch);
+            
+            $r_close = curl_close ($ch);
+            
+            print_r($server_output);
+            
         }
         
     }

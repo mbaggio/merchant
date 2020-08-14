@@ -67,6 +67,10 @@ class SitemapCategoriesController extends Controller
                 ]
             ];
             
+            // send request to elastic
+            $object = \DB::table('sitemap_categories')->where('id', $sitemap_category_id)->first();
+            Controller::sendToElastic('hit', 'sitemap_categories', $object->name.' ('.$sitemap_category_id.')');
+            
             return response()->json($result);
             
         } else {
