@@ -120,7 +120,11 @@ class Controller extends BaseController
                     $value = floatval($value);
                 }
                 
-                if (is_null($error) && ($value < 1 || $value > 100)) {
+                if (is_null($error) && isset($options['range'])) {
+                    if ($value < $options['range']['min'] || $value > $options['range']['max']) {
+                        $error = response()->json(['error' => 'Invalid '.$key_name.' value - should be between '.$options['range']['min'].' and '.$options['range']['max'].'', 'data' => [$value]], 412, []);    
+                    }
+                } elseif (is_null($error) && ($value < 1 || $value > 100)) {
                     $error = response()->json(['error' => 'Invalid '.$key_name.' value - should be between 1 and 100', 'data' => [$value]], 412, []);
                 }
                 
@@ -177,12 +181,16 @@ class Controller extends BaseController
         $error = null;
         
         list($object, $path, $params) = $parameters['request']->route();
-        $name = (empty($params) || !isset($params['name']) || urldecode($params['name']) == '{name}') ? '' : $params['name'];
+        $name = (empty($params) || !isset($params['name']) || urldecode($params['name']) == '{name}' || urldecode($params['name']) == ',') ? '' : $params['name'];
+        $id = (empty($params) || !isset($params['id']) || urldecode($params['id']) == '{id}') ? '' : $params['id'];
         $page_number = (empty($params) || !isset($params['page_number']) || urldecode($params['page_number']) == '{page_number}') ? '' : $params['page_number'];
 
         # Validations
         # 1 - $name (format)
         $name = Controller::sanatizeStringInput(null, 'name', $name, $error, ['allow_null' => true, 'avoid_table_check' => true]);
+        
+        # 2 - $id (format)
+        $id = Controller::sanatizeIntegerInput(null, 'id', $id, $error, ['allow_null' => true, 'avoid_table_check' => true]);
 
         if (is_null($error)) {
             
@@ -194,6 +202,12 @@ class Controller extends BaseController
             }
             if (!is_null($name)) {
                 $query->where('name', 'like', $name.'%');
+            }
+            if (!is_null($id)) {
+                $query->where('id', '=', $id);
+            }
+            if (isset($parameters['exclude'])) {
+                $query->where($parameters['exclude']['field'], '!=', $parameters['exclude']['value']);
             }
             
             return Controller::paginateQueryResults([
@@ -251,7 +265,7 @@ class Controller extends BaseController
         }
     }
     
-    public static function sendToElastic($type, $tag, $request_value)
+    public static function sendToElastic($type, $tag, $request_value, $additional_data = [])
     {
         //check if defined configuration for elasticsearch
         $elastic_server  = config('elastic.elastic_url') . ':' . config('elastic.elastic_port');
@@ -276,7 +290,7 @@ class Controller extends BaseController
             $token = 'Basic ' . Base64_encode($base);
 
             //create url for index
-            $elasticURL = $elastic_server . '/merchants/'.$type;
+            $elasticURL = $elastic_server . '/'.$type.'/'.$tag;
             $headers = [
                 'Content-type: application/json',
                 'Accept: application/json',
@@ -284,7 +298,10 @@ class Controller extends BaseController
                 'Cache-Control: no-cache'
             ];
             
-            $json_values = ['tag' => $tag, 'value' => $request_value, 'time' => date('Y-m-d H:i:s')];
+            $json_values = ['item_id' => $request_value, 'count' => 1, '@timestamp' => $date_time];
+            if (!empty($additional_data)) {
+                $json_values = array_merge($json_values, $additional_data);
+            }
 
             //Disable SSL verification for elastic server
             $ch = curl_init();
@@ -300,8 +317,6 @@ class Controller extends BaseController
             $server_output = curl_exec($ch);
             
             $r_close = curl_close ($ch);
-            
-            print_r($server_output);
             
         }
         

@@ -73,7 +73,7 @@ class MerchantsController extends Controller
                 Redis::set($cache_key, json_encode($data));
                 Redis::expire($cache_key, 60);
                 $data['cache_data'] = false;
-                
+
                 $return = response()->json($data, 200);
                 
             } else {
@@ -81,8 +81,13 @@ class MerchantsController extends Controller
                 $return = $data;
                 
             }
-            
 
+        }
+        
+        if (is_array($data) && isset($data['success'])) {
+            // send request to elastic
+            $merchant_info = json_decode(json_encode($data['merchant_info']), true);
+            Controller::sendToElastic('merchants', 'hit', $merchant_info['name'].' ('.$merchant_info['id'].')');
         }
         
         return $return;
@@ -834,6 +839,80 @@ class MerchantsController extends Controller
             }
 
             return response()->json(['success' => 'Item deleted', 'data' => $tmp_category], 200);    
+            
+        } else {
+            
+            return $error;
+            
+        }
+        
+    }
+    
+    /**********************************************************
+    /**********************************************************
+    Merchant AFFILIATES ORDERS CRUD Starts here
+    /**********************************************************
+    /**********************************************************/
+    /**
+     * @OA\Post(
+     *     path="/merchants-affiliate-order/{merchant_id}/{order_amount}",
+     *     description="Add merchant order",
+     *     tags={"Merchants Affiliates Orders"},
+     *     @OA\Parameter(
+     *        name="merchant_id",
+     *        in="path",
+     *        description="Merchant id",
+     *        required=true
+     *     ),
+     *     @OA\Parameter(
+     *        name="order_amount",
+     *        in="path",
+     *        description="Order amount (decimal number)",
+     *        required=true
+     *     ),
+     *     @OA\Response(response="201", description="Merchant Order added"),
+     *     @OA\Response(response="412", description="Precondition Failed")
+     * )
+     */
+    public function createMerchantsAffiliateOrder(Request $request, $merchant_id, $order_amount) {
+        $error = null;
+        
+        # Validations
+        # 1 - $merchant_id (format and existant)
+        $merchant_id = Controller::sanatizeIntegerInput('merchant_affiliates', 'merchant_id', $merchant_id, $error, ['should_exist' => true]);
+        
+        # 2 - $order_amount (format)
+        $order_amount = Controller::sanatizeDecimalInput('order_amount', $order_amount, $error, ['range' => ['min' => 1, 'max'=> 10000]]);
+        
+        if (is_null($error)) {
+            
+            // get merchant affiliate info
+            $merchant_details = json_decode(@file_get_contents('http://localhost/merchants-details/'.$merchant_id), true);
+            $cash_back_rate = floatval($merchant_details['affiliate_data']['cash_back_rate']);
+            $comission = $order_amount * ($cash_back_rate / 100);
+
+            $sitemap_category_details = json_decode(@file_get_contents('http://localhost/sitemap_categories/'.$merchant_details['merchant_info']['sitemap_category_id']), true);
+            $sitemap_category_details = $sitemap_category_details['collection'][0];
+            
+
+            // send request to elastic (sitemap data)
+            Controller::sendToElastic(
+                'sales_sitemap', 
+                'totals', 
+                $sitemap_category_details['name'].' ('.$sitemap_category_details['id'].')', 
+                ['amount' => $order_amount, 'commission' => $comission]);
+                
+
+            // send request to elastic (merchant data)
+            Controller::sendToElastic(
+                'sales_merchant',
+                'totals', 
+                $merchant_details['merchant_info']['name'].' ('.$merchant_details['merchant_info']['id'].')', 
+                ['amount' => $order_amount, 'commission' => $comission]);
+
+            
+            
+            return response()->json(['success' => 'Item added', 'data' => ['merchant_id' => $merchant_id, 'order_amount' => $order_amount, 'comission' => $comission]], 200);    
             
         } else {
             

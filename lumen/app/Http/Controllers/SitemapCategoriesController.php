@@ -9,12 +9,29 @@ class SitemapCategoriesController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/sitemap_categories",
+     *     path="/sitemap_categories/{id}",
      *     description="Sitemap Categories list",
      *     tags={"Sitemap categories"},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        description="Sitemap category id",
+     *        required=false,
+     *        allowEmptyValue=true
+     *     ),
      *     @OA\Response(response="200", description="Sitemap cateogories list")
      * )
      */
+    public function getSitemapCategories(Request $request) {        
+        return Controller::paginateResults([
+            'table' => 'sitemap_categories',
+            'exclude' => [
+                'field' => 'id',
+                'value' => 1
+            ],
+            'request' => $request
+        ]);
+    }
     
     /**
      * @OA\Get(
@@ -69,7 +86,7 @@ class SitemapCategoriesController extends Controller
             
             // send request to elastic
             $object = \DB::table('sitemap_categories')->where('id', $sitemap_category_id)->first();
-            Controller::sendToElastic('hit', 'sitemap_categories', $object->name.' ('.$sitemap_category_id.')');
+            Controller::sendToElastic('sitemap_categories', 'hit', $object->name.' ('.$sitemap_category_id.')');
             
             return response()->json($result);
             

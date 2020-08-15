@@ -685,15 +685,79 @@
                 }
             }
         },
-        "/sitemap_categories": {
+        "/merchants-affiliate-order/{merchant_id}/{order_amount}": {
+            "post": {
+                "tags": [
+                    "Merchants Affiliates Orders"
+                ],
+                "description": "Add merchant order",
+                "operationId": "App\\Http\\Controllers\\MerchantsController::createMerchantsAffiliateOrder",
+                "parameters": [
+                    {
+                        "name": "merchant_id",
+                        "in": "path",
+                        "description": "Merchant id",
+                        "required": true
+                    },
+                    {
+                        "name": "order_amount",
+                        "in": "path",
+                        "description": "Order amount (decimal number)",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Merchant Order added"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
+                    }
+                }
+            }
+        },
+        "/sitemap_categories/{id}": {
             "get": {
                 "tags": [
                     "Sitemap categories"
                 ],
                 "description": "Sitemap Categories list",
+                "operationId": "App\\Http\\Controllers\\SitemapCategoriesController::getSitemapCategories",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Sitemap category id",
+                        "required": false,
+                        "allowEmptyValue": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Sitemap cateogories list"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Sitemap categories"
+                ],
+                "description": "Delete Sitemap Category",
+                "operationId": "App\\Http\\Controllers\\SitemapCategoriesController::delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Category id",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Sitemap cateogory deleted"
+                    },
+                    "412": {
+                        "description": "Precondition Failed"
                     }
                 }
             }
@@ -784,31 +848,6 @@
                 "responses": {
                     "200": {
                         "description": "Sitemap cateogory updated"
-                    },
-                    "412": {
-                        "description": "Precondition Failed"
-                    }
-                }
-            }
-        },
-        "/sitemap_categories/{id}": {
-            "delete": {
-                "tags": [
-                    "Sitemap categories"
-                ],
-                "description": "Delete Sitemap Category",
-                "operationId": "App\\Http\\Controllers\\SitemapCategoriesController::delete",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "Category id",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Sitemap cateogory deleted"
                     },
                     "412": {
                         "description": "Precondition Failed"

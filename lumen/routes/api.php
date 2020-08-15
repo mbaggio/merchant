@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Route;
 ### CREATE
 $router->post('/sitemap_categories/{name}[/{parent_id}]', ['uses' => 'SitemapCategoriesController@create']);
 ### READ
-$router->get('/sitemap_categories', function () use ($router) {
-    return response()->json(['collection' => \App\Models\SitemapCategory::where('id', '>', 1)->get()]);
-});
+$router->get('/sitemap_categories[/{id}]', ['uses' => 'SitemapCategoriesController@getSitemapCategories']);
 ### UPDATE
 $router->patch('/sitemap_categories/{id}/{new_name}', ['uses' => 'SitemapCategoriesController@update']);
 ### DELETE
@@ -31,8 +29,10 @@ $router->get('/sitemap_categories/{sitemap_category_id}/merchants[/{page_number}
 ### CREATE
 $router->post('/merchants/{name}/{url}/{description}/{sitemap_category_id}', ['uses' => 'MerchantsController@create']);
 ### READ
-$router->get('/merchants[/{name}/{page_number}]', ['uses' => 'MerchantsController@getMerchants']);
+$router->get('/merchants/{name}/{page_number}', ['uses' => 'MerchantsController@getMerchants']);
+$router->get('/merchants//{page_number}', ['uses' => 'MerchantsController@getMerchants']);
 $router->get('/merchants/{name}', ['uses' => 'MerchantsController@getMerchants']);
+$router->get('/merchants//', ['uses' => 'MerchantsController@getMerchants']);
 $router->get('/merchants-details/{id}', ['uses' => 'MerchantsController@getMerchantsInfo']);
 ### UPDATE
 $router->patch('/merchants/{id}/{new_name}/{new_url}/{new_description}/{new_sitemap_category_id}', ['uses' => 'MerchantsController@update']);
@@ -49,6 +49,9 @@ $router->post('/merchants-affiliate/{merchant_id}/{cash_back_rate}[/{'.$txt_fiel
 $router->patch('/merchants-affiliate/{merchant_id}/{cash_back_rate}[/{'.$txt_fields.'}]', ['uses' => 'MerchantsController@updateMerchantsAffiliation']);
 # DELETE
 $router->delete('/merchants-affiliate/{merchant_id}', ['uses' => 'MerchantsController@deleteMerchantsAffiliation']);
+
+# Merchants Affiliates Order CREATE 
+$router->post('/merchants-affiliate-order/{merchant_id}/{order_amount}', ['uses' => 'MerchantsController@createMerchantsAffiliateOrder']);
 
 # Ad Campaigns CREATE . READ . UPDATE . DELETE
 ### CREATE
