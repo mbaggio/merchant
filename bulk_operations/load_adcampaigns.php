@@ -1,0 +1,38 @@
+<?php
+
+// call some of our main endpoints to fill elastic search with hits
+$categories = [8, 18, 19, 20, 17, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 ];
+
+// Add 2hs to current time
+$dateTimestamp1 = strtotime(date("Y-m-d H:i:s", strtotime('+2 hours'))); 
+
+$options = array(
+    'http' => array(
+        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+        'method'  => 'POST'
+    )
+);
+$context  = stream_context_create($options);
+
+do {
+    $date2 = date("Y-m-d H:i:s"); 
+    $dateTimestamp2 = strtotime($date2); 
+  
+	// call the endpoint
+	$ob_id = array_rand(array_flip($categories), 1);
+    
+    // just let's do a filter
+    if ($ob_id % 2 != 0 || (rand(0, 100) < 60 && $ob_id % 2 == 0)) {
+        $length  = 10;
+        $tmp_name = 'TMP NAME - ' . substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1, $length);
+        $rate = urlencode(mt_rand(1, 100));
+        $date_from = '2020-12-12 12:12:12';
+        $date_to = '2020-12-20 12:12:12';
+        
+        $result = file_get_contents("http://localhost:5000/adcampaigns/".urlencode($tmp_name)."/".$rate."/".urlencode($date_from)."/".urlencode($date_to), false, $context);
+        
+    }
+
+} while ($dateTimestamp1 > $dateTimestamp2);
+
+?>

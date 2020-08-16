@@ -39,6 +39,87 @@ class AdcampaignsController extends Controller
     }
     
     /**
+     * @OA\Get(
+     *     path="/adcampaigns-details/{id}",
+     *     description="AdCampaigns info",
+     *     tags={"AdCampaigns"},
+     *     @OA\Parameter(
+     *        name="id",
+     *        in="path",
+     *        description="AdCampaign id",
+     *        required=true
+     *     ),
+     *     @OA\Response(response="200", description="AdCampaigns list")
+     * )
+     */
+    public function getAdcampaignsInfo(Request $request, $id) {
+        $error = null;
+        $return = null;
+        
+        # Validations
+        # 1 - $id (format and existant)
+        $id = Controller::sanatizeIntegerInput('ad_campaigns', 'id', $id, $error, ['should_exist' => true]);
+
+        if (is_null($error)) {
+            
+            $cache_key = 'getAdcampaignsInfo:'.$id;
+            
+            // use this to disable/enable cache and 
+            // remember to execute "php artisan swoole:http reload"
+            $cache_enabled = true;
+            
+            if (Redis::exists($cache_key) && $cache_enabled) {
+
+                // get data from redis
+                $data = json_decode(Redis::get($cache_key), true);
+                $data['cache_data'] = true;
+                $return = response()->json($data, 200);
+                
+            } else {
+                
+                // from DB
+                $object = \DB::table('ad_campaigns')->where('id', $id)->first();
+                $data = json_decode(json_encode($object), true);
+                
+                // get similar campaign names
+                $data['similar_campaigns_qty'] = 
+                    \DB::table('ad_campaigns')
+                        ->where('name', 'like', substr($object->name, 0, 13).'%')
+                        ->where('id', '!=', $id)
+                        ->count(); 
+
+                $data['similar_campaigns_first_10'] = [
+                    'collection' => 
+                        \DB::table('ad_campaigns')
+                            ->where('name', 'like', substr($object->name, 0, 13).'%')
+                            ->where('id', '!=', $id)
+                            ->take(10)
+                            ->get()
+                ];
+                
+                // let's force a sleep in order to test
+                // how the cache works
+                // sleep(1);
+                    
+                // save in Redis
+                Redis::set($cache_key, json_encode($data));
+                Redis::expire($cache_key, 60);
+                $data['cache_data'] = false;
+                $return = response()->json($data, 200);
+                
+            }
+            
+        } else {
+            
+            $return = $error;
+            
+        }
+        
+        return $return;
+    }
+    
+    
+    /**
      * @OA\Post(
      *     path="/adcampaigns/{name}/{cash_back_rate}/{date_from}/{date_to}",
      *     description="New AdCampaign",

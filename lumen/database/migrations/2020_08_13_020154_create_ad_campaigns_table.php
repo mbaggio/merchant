@@ -41,7 +41,7 @@ class CreateAdCampaignsTable extends Migration
                 ->nullable(false);
             $table->foreign('ad_campaign_id')
                 ->references('id')
-                ->on('merchants')
+                ->on('ad_campaigns')
                 ->onDelete('cascade');
             
             $table->unsignedInteger('merchant_id')

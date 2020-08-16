@@ -14,8 +14,9 @@ php artisan migrate
 # generate Swagger docs
 php artisan swagger-lume:publish-config
 php artisan swagger-lume:publish-views
-php artisan swagger-lume:publish
 php artisan swagger-lume:generate
+php artisan swagger-lume:publish
+
 
 # serve the application with swoole
 php artisan swoole:http start

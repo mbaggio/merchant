@@ -60,6 +60,7 @@ $router->post('/adcampaigns/{name}/{cash_back_rate}/{date_from}/{date_to}', ['us
 $router->get('/adcampaigns[/{name}/{page_number}]', ['uses' => 'AdcampaignsController@getAdcampaigns']);
 $router->get('/adcampaigns/{name}', ['uses' => 'AdcampaignsController@getAdcampaigns']);
 $router->get('/adcampaigns/{adcampaign_id}/merchants[/{page_number}]', ['uses' => 'AdcampaignsController@getAdcampaignMerchants']);
+$router->get('/adcampaigns-details/{id}', ['uses' => 'AdcampaignsController@getAdcampaignsInfo']);
 ### UPDATE
 $router->patch('/adcampaigns/{id}/{new_name}/{new_cash_back_rate}/{new_date_from}/{new_date_to}', ['uses' => 'AdcampaignsController@update']);
 ### DELETE
