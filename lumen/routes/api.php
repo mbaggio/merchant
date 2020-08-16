@@ -44,14 +44,14 @@ $router->delete('/merchants/{id}', ['uses' => 'MerchantsController@delete']);
 $txt_fields = implode('}/{', ['logo1_url', 'logo2_url', 'logo3_url', 'shipping_address_first_name', 'shipping_address_last_name', 'shipping_address_street', 'shipping_address_postalcode', 
             'shipping_address_state', 'shipping_address_country_code', 'billing_address_first_name', 'billing_address_last_name', 'billing_address_street', 
             'billing_address_postalcode', 'billing_address_state', 'billing_address_country_code']);
-$router->post('/merchants-affiliate/{merchant_id}/{cash_back_rate}[/{'.$txt_fields.'}]', ['uses' => 'MerchantsController@createMerchantsAffiliation']);
+$router->post('/merchants-affiliate/{merchant_id}/{cash_back_rate}[/{'.$txt_fields.'}]', ['uses' => 'MerchantsAffiliatesController@createMerchantsAffiliation']);
 ### UPDATE
-$router->patch('/merchants-affiliate/{merchant_id}/{cash_back_rate}[/{'.$txt_fields.'}]', ['uses' => 'MerchantsController@updateMerchantsAffiliation']);
+$router->patch('/merchants-affiliate/{merchant_id}/{cash_back_rate}[/{'.$txt_fields.'}]', ['uses' => 'MerchantsAffiliatesController@updateMerchantsAffiliation']);
 # DELETE
-$router->delete('/merchants-affiliate/{merchant_id}', ['uses' => 'MerchantsController@deleteMerchantsAffiliation']);
+$router->delete('/merchants-affiliate/{merchant_id}', ['uses' => 'MerchantsAffiliatesController@deleteMerchantsAffiliation']);
 
 # Merchants Affiliates Order CREATE 
-$router->post('/merchants-affiliate-order/{merchant_id}/{order_amount}', ['uses' => 'MerchantsController@createMerchantsAffiliateOrder']);
+$router->post('/merchants-affiliate-order/{merchant_id}/{order_amount}', ['uses' => 'MerchantsAffiliatesController@createMerchantsAffiliateOrder']);
 
 # Ad Campaigns CREATE . READ . UPDATE . DELETE
 ### CREATE
