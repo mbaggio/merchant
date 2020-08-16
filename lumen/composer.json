@@ -11,7 +11,7 @@
         "illuminate/redis": "^7.25",
         "laravel/lumen-framework": "^7.0",
         "predis/predis": "^1.1",
-        "rinvex/countries": "^7.3",
+        "rinvex/countries": "^6.1",
         "swooletw/laravel-swoole": "^2.6"
     },
     "require-dev": {

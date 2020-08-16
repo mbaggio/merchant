@@ -887,19 +887,23 @@ class MerchantsController extends Controller
         if (is_null($error)) {
             
             // get merchant affiliate info
-            $merchant_details = json_decode(@file_get_contents('http://localhost/merchants-details/'.$merchant_id), true);
-            $cash_back_rate = floatval($merchant_details['affiliate_data']['cash_back_rate']);
+            // get data from DB
+            $merchant_affiliate_details = \DB::table('merchant_affiliates')->where('merchant_id', $merchant_id)->first();
+            // $merchant_details = json_decode(@file_get_contents('http://localhost/merchants-details/'.$merchant_id), true);
+            $cash_back_rate = floatval($merchant_affiliate_details->cash_back_rate);
             $comission = $order_amount * ($cash_back_rate / 100);
 
-            $sitemap_category_details = json_decode(@file_get_contents('http://localhost/sitemap_categories/'.$merchant_details['merchant_info']['sitemap_category_id']), true);
-            $sitemap_category_details = $sitemap_category_details['collection'][0];
+            //$sitemap_category_details = json_decode(@file_get_contents('http://localhost/sitemap_categories/'.$merchant_details['merchant_info']['sitemap_category_id']), true);
+            // $sitemap_category_details = $sitemap_category_details['collection'][0];
+            $merchant_details = \DB::table('merchants')->where('id', $merchant_id)->first();
+            $sitemap_category_details = \DB::table('sitemap_categories')->where('id', $merchant_details->sitemap_category_id)->first();
             
 
             // send request to elastic (sitemap data)
             Controller::sendToElastic(
                 'sales_sitemap', 
                 'totals', 
-                $sitemap_category_details['name'].' ('.$sitemap_category_details['id'].')', 
+                $sitemap_category_details->name.' ('.$sitemap_category_details->id.')', 
                 ['amount' => $order_amount, 'commission' => $comission]);
                 
 
@@ -907,7 +911,7 @@ class MerchantsController extends Controller
             Controller::sendToElastic(
                 'sales_merchant',
                 'totals', 
-                $merchant_details['merchant_info']['name'].' ('.$merchant_details['merchant_info']['id'].')', 
+                $merchant_details->name.' ('.$merchant_details->id.')', 
                 ['amount' => $order_amount, 'commission' => $comission]);
 
             

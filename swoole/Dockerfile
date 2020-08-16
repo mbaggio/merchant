@@ -10,4 +10,9 @@ USER root
 
 ADD ./run.sh /tmp/
 RUN chmod +x /tmp/run.sh
+
+# wait until finish
+ADD waitForComposer.sh /root/
+RUN chmod +x /root/waitForComposer.sh
+
 ENTRYPOINT ["/tmp/run.sh"]

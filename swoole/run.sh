@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Install dependencies
+echo "****** Installing Composer dependencies..."
+composer install --ignore-platform-reqs
+echo "****** Installing Composer dependencies DONE!"
+
 # clear config cache
 php artisan config:clear
 

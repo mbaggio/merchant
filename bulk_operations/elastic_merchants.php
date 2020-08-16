@@ -16,6 +16,7 @@ do {
     // just let's do a filter
     if ($ob_id % 2 != 0 || (rand(0, 100) < 60 && $ob_id % 2 == 0)) {
         file_get_contents("http://localhost:5000/merchants-details/".$ob_id);    
+        sleep(1);
     }
 
 } while ($dateTimestamp1 > $dateTimestamp2);

@@ -303,20 +303,25 @@ class Controller extends BaseController
                 $json_values = array_merge($json_values, $additional_data);
             }
 
-            //Disable SSL verification for elastic server
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $elasticURL);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json_values));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLINFO_HEADER_OUT, false);
+            try {
+                //Disable SSL verification for elastic server
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $elasticURL);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($json_values));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                curl_setopt($ch, CURLINFO_HEADER_OUT, false);
+
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+                $server_output = curl_exec($ch);
+
+                $r_close = curl_close ($ch);
+            } catch (\Exception $e) {
+                
+            }
             
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        
-            $server_output = curl_exec($ch);
-            
-            $r_close = curl_close ($ch);
             
         }
         

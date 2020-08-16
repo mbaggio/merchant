@@ -17,6 +17,7 @@ do {
     // just let's do a filter
     if ($sitemap_id % 2 != 0 || (rand(0, 100) < 60 && $sitemap_id % 2 == 0)) {
         file_get_contents("http://localhost:5000/sitemap_categories/".$sitemap_id."/merchants/1");
+        sleep(1);
     }
 
 } while ($dateTimestamp1 > $dateTimestamp2);

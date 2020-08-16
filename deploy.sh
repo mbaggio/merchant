@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Install dependencies
-echo "****** Installing Composer dependencies..."
-cd lumen; composer install; cd ..;
-echo "****** Installing Composer dependencies DONE!"
-
 # build images 
 echo "****** Building images..."
 cp .env ./lumen/
@@ -20,4 +15,5 @@ echo "****** Starting DB container DONE!"
 # run app image
 echo "****** Starting APP container..."
 docker-compose -f docker-compose.yml up --detach swoole_server;
+docker exec -it container_swoole_server /root/waitForComposer.sh;
 echo "****** Starting APP container DONE!"

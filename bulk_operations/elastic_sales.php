@@ -23,10 +23,10 @@ do {
     
     // just let's do a filter
     if ($ob_id % 2 != 0 || (rand(0, 100) < 60 && $ob_id % 2 == 0)) {
-        $order_amount = mt_rand(1000, 50000) / 100;
+        $order_amount = urlencode(mt_rand(1000, 50000) / 100);
         
-
         $result = file_get_contents("http://localhost:5000/merchants-affiliate-order/".$ob_id.'/'.$order_amount, false, $context);
+        sleep(1);
     }
 
 } while ($dateTimestamp1 > $dateTimestamp2);
