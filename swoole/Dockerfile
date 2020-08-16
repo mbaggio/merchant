@@ -14,5 +14,7 @@ RUN chmod +x /tmp/run.sh
 # wait until finish
 ADD waitForComposer.sh /root/
 RUN chmod +x /root/waitForComposer.sh
+ADD waitForURL.sh /root/
+RUN chmod +x /root/waitForURL.sh
 
 ENTRYPOINT ["/tmp/run.sh"]
