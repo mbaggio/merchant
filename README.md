@@ -7,7 +7,10 @@
     - DB_Schema can be found in ./mysql/DB_Schema.png
 
 ## What it does?
-    It manages all the aspects arround Merchants, it's not only a CRUD for this entity as it manages relationships with other entities. It also deploys different containers in order to use a MySQL database engine and a Redis Cache, in addition to a connection to a ElasticSearch service in the cloud.
+    It manages all the aspects arround Merchants, it's not only a CRUD for this entity as it manages 
+    relationships with other entities. It also deploys different containers in order to use a MySQL 
+    database engine and a Redis Cache.
+    In addition to a connection to a ElasticSearch service in the cloud.
 
 ## How can I Install it?
 ### With Docker
@@ -15,16 +18,18 @@
         https://docs.docker.com/engine/install/      
    
     - And then follow the following instructions:
-        - Cone this project
-            git clone https://github.com/mbaggio/merchant.git
+        - Cone this project: git clone https://github.com/mbaggio/merchant.git
         - Execute ./deploy.sh
         
     - Please look at the following video for more information: https://youtu.be/80WciCmPSlE
 
 ### Where I can see real time reports?
-    Reports were integrated with ElasticSearch, and it depends on the executed endpoint  the infromation that will be exported to ElasticSearch.
-    ElasticSearch credentials are in the introduction document, and will work for a few days because it is not a paid account.
-    In order to see how it works, please look at this final video, which also shows a performance test: https://youtu.be/3Cm3UPLvr3E
+    Reports were integrated with ElasticSearch, and it depends on the executed endpoint  the infromation 
+    that will be exported to ElasticSearch.
+    
+    ElasticSearch credentials are in the introduction document, and will work for a few days because it 
+    is not a paid account. In order to see how it works, please look at this final video, which also 
+    shows a performance test: https://youtu.be/3Cm3UPLvr3E
             
             
             
