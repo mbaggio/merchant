@@ -2,7 +2,7 @@
     Built with Lumen 7.2.1 & Swoole
     Using Swagger 3.0, RedisCache, MySQL8 and ElasticSearch
     
-    - Introduction: [![Introduction](http://img.youtube.com/vi/SwHkpzeDmgc/0.jpg)](http://www.youtube.com/watch?v=SwHkpzeDmgc "Introduction")
+    - Introduction: [![Introduction](//img.youtube.com/vi/SwHkpzeDmgc/0.jpg)](//www.youtube.com/watch?v=SwHkpzeDmgc "Introduction")
     - Introduction document: https://bit.ly/2Y9CqWm
     - DB_Schema can be found in ./mysql/DB_Schema.png
 
@@ -21,7 +21,7 @@
         - Cone this project: git clone https://github.com/mbaggio/merchant.git
         - Execute ./deploy.sh
         
-    - Please look at the following video for more information: [![Installing](http://img.youtube.com/vi/80WciCmPSlE/0.jpg)](http://www.youtube.com/watch?v=80WciCmPSlE "Installing")
+    - Please look at the following video for more information: [![Installing](//img.youtube.com/vi/80WciCmPSlE/0.jpg)](//www.youtube.com/watch?v=80WciCmPSlE "Installing")
 
 ### Where I can see real time reports?
     Reports were integrated with ElasticSearch, and it depends on the executed endpoint  the infromation 
@@ -29,7 +29,7 @@
     
     ElasticSearch credentials are in the introduction document, and will work for a few days because it 
     is not a paid account. In order to see how it works, please look at this final video, which also 
-    shows a performance test: [![Reports and performance](http://img.youtube.com/vi/3Cm3UPLvr3E/0.jpg)](http://www.youtube.com/watch?v=3Cm3UPLvr3E "Reports and performance")
+    shows a performance test: [![Reports and performance](//img.youtube.com/vi/3Cm3UPLvr3E/0.jpg)](//www.youtube.com/watch?v=3Cm3UPLvr3E "Reports and performance")
             
             
             
